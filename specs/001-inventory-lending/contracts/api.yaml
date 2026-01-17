@@ -1,0 +1,1376 @@
+openapi: 3.0.3
+info:
+  title: Inventory Management & Lending API
+  description: |
+    RESTful API for managing inventory items and tracking lending transactions.
+    
+    ## Features
+    - **Item Management**: Create, read, update, and delete inventory items
+    - **Lending Workflow**: Lend items to users and track returns
+    - **Lending History**: View complete audit trail of all transactions
+    - **User Management**: Manage borrowers and staff members
+    - **Dashboard**: Real-time view of item availability and active loans
+    
+    ## Business Rules
+    - Items must have status "Available" to be lent out
+    - Items with status "Lent" cannot be deleted or lent again
+    - All lending operations are atomic (transaction-based)
+    - Foreign key constraints enforce referential integrity
+    - Lending logs are immutable (audit trail protection)
+    
+    ## Constitution Compliance
+    This API adheres to the project constitution principles:
+    - Principle I: RESTful architecture with standard HTTP methods
+    - Principle II: Modular design with clear separation of concerns
+    - Principle III: Atomic transactions for all lending operations
+    - Principle IV: Data integrity through foreign key constraints
+    
+    **Version**: 1.0.0  
+    **Feature**: `001-inventory-lending`  
+    **Created**: 2026-01-17
+    
+  version: 1.0.0
+  contact:
+    name: API Support
+    url: https://github.com/your-org/inventory-api
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development server
+  - url: http://localhost:3000/api/v1
+    description: Production server (update with actual URL)
+
+tags:
+  - name: Items
+    description: Inventory item management operations
+  - name: Users
+    description: User and borrower management operations
+  - name: Lending
+    description: Lending and return workflow operations
+  - name: History
+    description: Lending history and audit trail operations
+  - name: Dashboard
+    description: Overview and status reporting operations
+
+paths:
+  # ============================================================================
+  # ITEM MANAGEMENT ENDPOINTS
+  # ============================================================================
+  
+  /items:
+    get:
+      tags:
+        - Items
+      summary: Get all items
+      description: |
+        Retrieve a list of all inventory items with optional filtering.
+        
+        **User Story**: US1 - Manage Inventory Items (P1)  
+        **Functional Requirements**: FR-002, FR-006, FR-007
+      operationId: getAllItems
+      parameters:
+        - name: status
+          in: query
+          description: Filter by item status
+          required: false
+          schema:
+            type: string
+            enum: [Available, Lent, Maintenance]
+        - name: category
+          in: query
+          description: Filter by category
+          required: false
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search by name, category, or description
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of items retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Item'
+                  count:
+                    type: integer
+                    example: 25
+              examples:
+                success:
+                  summary: Successful response
+                  value:
+                    success: true
+                    data:
+                      - id: "550e8400-e29b-41d4-a716-446655440000"
+                        name: "Dell Laptop XPS 15"
+                        description: "15-inch laptop with i7 processor"
+                        category: "Hardware"
+                        status: "Available"
+                        createdAt: "2026-01-15T10:30:00Z"
+                        updatedAt: "2026-01-15T10:30:00Z"
+                      - id: "550e8400-e29b-41d4-a716-446655440001"
+                        name: "Projector Epson"
+                        description: "HD projector for presentations"
+                        category: "Hardware"
+                        status: "Lent"
+                        createdAt: "2026-01-10T08:15:00Z"
+                        updatedAt: "2026-01-17T09:00:00Z"
+                    count: 2
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Items
+      summary: Create a new item
+      description: |
+        Add a new item to the inventory.
+        
+        **User Story**: US1 - Manage Inventory Items (P1)  
+        **Functional Requirements**: FR-001
+      operationId: createItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemCreate'
+            examples:
+              laptop:
+                summary: Create a laptop
+                value:
+                  name: "Dell Laptop XPS 15"
+                  description: "15-inch laptop with i7 processor"
+                  category: "Hardware"
+                  status: "Available"
+              tool:
+                summary: Create a tool
+                value:
+                  name: "Power Drill"
+                  description: "Cordless drill with battery pack"
+                  category: "Tools"
+      responses:
+        '201':
+          description: Item created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Item'
+                  message:
+                    type: string
+                    example: "Item created successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /items/{itemId}:
+    get:
+      tags:
+        - Items
+      summary: Get item by ID
+      description: |
+        Retrieve a specific item by its UUID.
+        
+        **User Story**: US1 - Manage Inventory Items (P1)  
+        **Functional Requirements**: FR-002
+      operationId: getItemById
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      responses:
+        '200':
+          description: Item retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Item'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - Items
+      summary: Update an item
+      description: |
+        Update an existing item's details (excluding ID).
+        
+        **User Story**: US1 - Manage Inventory Items (P1)  
+        **Functional Requirements**: FR-003
+      operationId: updateItem
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemUpdate'
+      responses:
+        '200':
+          description: Item updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Item'
+                  message:
+                    type: string
+                    example: "Item updated successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Items
+      summary: Delete an item
+      description: |
+        Delete an item from inventory. Cannot delete items with status "Lent" 
+        or items with existing lending history (audit trail protection).
+        
+        **User Story**: US1 - Manage Inventory Items (P1)  
+        **Functional Requirements**: FR-004, FR-005
+      operationId: deleteItem
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      responses:
+        '200':
+          description: Item deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Item deleted successfully"
+        '400':
+          description: Cannot delete item (status is "Lent" or has lending history)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                lentItem:
+                  summary: Item is currently lent
+                  value:
+                    success: false
+                    error:
+                      code: "ITEM_LENT"
+                      message: "Cannot delete item that is currently lent out"
+                hasHistory:
+                  summary: Item has lending history
+                  value:
+                    success: false
+                    error:
+                      code: "HAS_HISTORY"
+                      message: "Cannot delete item with existing lending history (audit trail protection)"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  # ============================================================================
+  # USER MANAGEMENT ENDPOINTS
+  # ============================================================================
+  
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      description: |
+        Retrieve a list of all users (staff and borrowers).
+        
+        **User Story**: US2 - Lend Items to Users (P2)  
+        **Functional Requirements**: FR-010, FR-011
+      operationId: getAllUsers
+      parameters:
+        - name: role
+          in: query
+          description: Filter by user role
+          required: false
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search by name or email
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  count:
+                    type: integer
+                    example: 10
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Users
+      summary: Create a new user
+      description: |
+        Add a new user (staff member or borrower) to the system.
+        
+        **Functional Requirements**: FR-008, FR-009
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
+                  message:
+                    type: string
+                    example: "User created successfully"
+        '400':
+          description: Validation error (email already exists or invalid format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                duplicateEmail:
+                  summary: Email already exists
+                  value:
+                    success: false
+                    error:
+                      code: "DUPLICATE_EMAIL"
+                      message: "Email address already exists"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /users/{userId}:
+    get:
+      tags:
+        - Users
+      summary: Get user by ID
+      description: Retrieve a specific user by their UUID.
+      operationId: getUserById
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - Users
+      summary: Update a user
+      description: Update an existing user's details.
+      operationId: updateUser
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
+                  message:
+                    type: string
+                    example: "User updated successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Users
+      summary: Delete a user
+      description: |
+        Delete a user from the system. Cannot delete users with existing 
+        lending history (audit trail protection).
+      operationId: deleteUser
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "User deleted successfully"
+        '400':
+          description: Cannot delete user with lending history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                hasHistory:
+                  summary: User has lending history
+                  value:
+                    success: false
+                    error:
+                      code: "HAS_HISTORY"
+                      message: "Cannot delete user with existing lending history (audit trail protection)"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  # ============================================================================
+  # LENDING WORKFLOW ENDPOINTS
+  # ============================================================================
+  
+  /items/{itemId}/lend:
+    post:
+      tags:
+        - Lending
+      summary: Lend an item to a user
+      description: |
+        Record a lending transaction. This operation is atomic - it updates 
+        the item status to "Lent" and creates a lending log entry in a single 
+        transaction.
+        
+        **User Story**: US2 - Lend Items to Users (P2)  
+        **Functional Requirements**: FR-012, FR-013, FR-014, FR-015
+        **Constitution**: Principle III - Atomic Transaction Integrity
+      operationId: lendItem
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LendRequest'
+            examples:
+              withNotes:
+                summary: Lend with condition notes
+                value:
+                  userId: "660e8400-e29b-41d4-a716-446655440000"
+                  conditionNotes: "Item in excellent condition, fully charged"
+              withoutNotes:
+                summary: Lend without notes
+                value:
+                  userId: "660e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '201':
+          description: Item lent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      item:
+                        $ref: '#/components/schemas/Item'
+                      lendingLog:
+                        $ref: '#/components/schemas/LendingLog'
+                  message:
+                    type: string
+                    example: "Item lent successfully"
+        '400':
+          description: Cannot lend item (not available or already lent)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                notAvailable:
+                  summary: Item not available
+                  value:
+                    success: false
+                    error:
+                      code: "ITEM_NOT_AVAILABLE"
+                      message: "Item is currently Lent and cannot be lent again"
+                inMaintenance:
+                  summary: Item in maintenance
+                  value:
+                    success: false
+                    error:
+                      code: "ITEM_NOT_AVAILABLE"
+                      message: "Item is currently Maintenance and cannot be lent"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /items/{itemId}/return:
+    post:
+      tags:
+        - Lending
+      summary: Return a lent item
+      description: |
+        Record the return of a lent item. This operation is atomic - it updates 
+        the item status to "Available" and updates the lending log with the 
+        return date in a single transaction.
+        
+        **User Story**: US3 - Return Items (P3)  
+        **Functional Requirements**: FR-016, FR-017, FR-018, FR-019
+        **Constitution**: Principle III - Atomic Transaction Integrity
+      operationId: returnItem
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnRequest'
+            examples:
+              withNotes:
+                summary: Return with condition notes
+                value:
+                  conditionNotes: "Returned in good condition, minor scratch on back"
+              withoutNotes:
+                summary: Return without notes
+                value: {}
+      responses:
+        '200':
+          description: Item returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      item:
+                        $ref: '#/components/schemas/Item'
+                      lendingLog:
+                        $ref: '#/components/schemas/LendingLog'
+                  message:
+                    type: string
+                    example: "Item returned successfully"
+        '400':
+          description: Cannot return item (not currently lent)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                notLent:
+                  summary: Item not currently lent
+                  value:
+                    success: false
+                    error:
+                      code: "ITEM_NOT_LENT"
+                      message: "Item is Available and cannot be returned"
+                noActiveLog:
+                  summary: No active lending log found
+                  value:
+                    success: false
+                    error:
+                      code: "NO_ACTIVE_LOG"
+                      message: "No active lending record found for this item"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  # ============================================================================
+  # LENDING HISTORY ENDPOINTS
+  # ============================================================================
+  
+  /items/{itemId}/history:
+    get:
+      tags:
+        - History
+      summary: Get lending history for an item
+      description: |
+        Retrieve the complete lending history for a specific item, sorted 
+        chronologically (most recent first).
+        
+        **User Story**: US4 - View Lending History (P4)  
+        **Functional Requirements**: FR-020, FR-021, FR-022
+      operationId: getItemHistory
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      responses:
+        '200':
+          description: Lending history retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LendingLogWithUser'
+                  count:
+                    type: integer
+                    example: 5
+              examples:
+                withHistory:
+                  summary: Item with lending history
+                  value:
+                    success: true
+                    data:
+                      - id: "770e8400-e29b-41d4-a716-446655440000"
+                        itemId: "550e8400-e29b-41d4-a716-446655440000"
+                        userId: "660e8400-e29b-41d4-a716-446655440000"
+                        dateLent: "2026-01-15T09:00:00Z"
+                        dateReturned: "2026-01-17T16:30:00Z"
+                        conditionNotes: "Returned in good condition"
+                        user:
+                          id: "660e8400-e29b-41d4-a716-446655440000"
+                          name: "John Doe"
+                          email: "john.doe@example.com"
+                          role: "Staff"
+                      - id: "770e8400-e29b-41d4-a716-446655440001"
+                        itemId: "550e8400-e29b-41d4-a716-446655440000"
+                        userId: "660e8400-e29b-41d4-a716-446655440001"
+                        dateLent: "2026-01-10T10:00:00Z"
+                        dateReturned: "2026-01-12T14:00:00Z"
+                        conditionNotes: null
+                        user:
+                          id: "660e8400-e29b-41d4-a716-446655440001"
+                          name: "Jane Smith"
+                          email: "jane.smith@example.com"
+                          role: "Borrower"
+                    count: 2
+                noHistory:
+                  summary: Item with no history
+                  value:
+                    success: true
+                    data: []
+                    count: 0
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /users/{userId}/history:
+    get:
+      tags:
+        - History
+      summary: Get lending history for a user
+      description: |
+        Retrieve all items borrowed by a specific user, sorted chronologically 
+        (most recent first).
+      operationId: getUserHistory
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: User lending history retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LendingLogWithItem'
+                  count:
+                    type: integer
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  # ============================================================================
+  # DASHBOARD ENDPOINTS
+  # ============================================================================
+  
+  /dashboard:
+    get:
+      tags:
+        - Dashboard
+      summary: Get dashboard overview
+      description: |
+        Retrieve dashboard data showing items currently lent out and summary 
+        statistics.
+        
+        **User Story**: US5 - Dashboard Overview (P5)  
+        **Functional Requirements**: FR-023, FR-024
+      operationId: getDashboard
+      responses:
+        '200':
+          description: Dashboard data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Dashboard'
+              examples:
+                dashboard:
+                  summary: Dashboard with data
+                  value:
+                    success: true
+                    data:
+                      summary:
+                        totalItems: 50
+                        availableItems: 35
+                        lentItems: 12
+                        maintenanceItems: 3
+                      itemsCurrentlyOut:
+                        - id: "550e8400-e29b-41d4-a716-446655440001"
+                          name: "Projector Epson"
+                          category: "Hardware"
+                          status: "Lent"
+                          borrower:
+                            name: "John Doe"
+                            email: "john.doe@example.com"
+                          dateLent: "2026-01-15T09:00:00Z"
+                          daysOut: 2
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /dashboard/items-out:
+    get:
+      tags:
+        - Dashboard
+      summary: Get all items currently lent out
+      description: |
+        Retrieve a list of all items with status "Lent", including borrower 
+        information and lending date.
+        
+        **User Story**: US5 - Dashboard Overview (P5)  
+        **Functional Requirements**: FR-023
+      operationId: getItemsOut
+      responses:
+        '200':
+          description: Items currently out retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ItemLentOut'
+                  count:
+                    type: integer
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+# ==============================================================================
+# COMPONENTS
+# ==============================================================================
+
+components:
+  parameters:
+    ItemId:
+      name: itemId
+      in: path
+      description: Item UUID
+      required: true
+      schema:
+        type: string
+        format: uuid
+      example: "550e8400-e29b-41d4-a716-446655440000"
+    
+    UserId:
+      name: userId
+      in: path
+      description: User UUID
+      required: true
+      schema:
+        type: string
+        format: uuid
+      example: "660e8400-e29b-41d4-a716-446655440000"
+  
+  schemas:
+    # ==========================================================================
+    # ITEM SCHEMAS
+    # ==========================================================================
+    
+    Item:
+      type: object
+      required:
+        - id
+        - name
+        - category
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID v4)
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Item name
+          example: "Dell Laptop XPS 15"
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+          description: Detailed description
+          example: "15-inch laptop with i7 processor and 16GB RAM"
+        category:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Item category
+          example: "Hardware"
+        status:
+          type: string
+          enum: [Available, Lent, Maintenance]
+          description: Current item state
+          example: "Available"
+        createdAt:
+          type: string
+          format: date-time
+          description: Record creation timestamp
+          example: "2026-01-15T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2026-01-15T10:30:00Z"
+    
+    ItemCreate:
+      type: object
+      required:
+        - name
+        - category
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Item name
+          example: "Dell Laptop XPS 15"
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+          description: Detailed description
+          example: "15-inch laptop with i7 processor and 16GB RAM"
+        category:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Item category
+          example: "Hardware"
+        status:
+          type: string
+          enum: [Available, Lent, Maintenance]
+          default: "Available"
+          description: Initial item status (defaults to Available)
+          example: "Available"
+    
+    ItemUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Item name
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+          description: Detailed description
+        category:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Item category
+        status:
+          type: string
+          enum: [Available, Lent, Maintenance]
+          description: Item status
+    
+    ItemLentOut:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        category:
+          type: string
+        status:
+          type: string
+          enum: [Lent]
+        borrower:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            email:
+              type: string
+        dateLent:
+          type: string
+          format: date-time
+        daysOut:
+          type: integer
+          description: Number of days since item was lent
+    
+    # ==========================================================================
+    # USER SCHEMAS
+    # ==========================================================================
+    
+    User:
+      type: object
+      required:
+        - id
+        - name
+        - email
+        - role
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID v4)
+          example: "660e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: User's full name
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          maxLength: 255
+          description: User's email address (unique)
+          example: "john.doe@example.com"
+        role:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: User role
+          example: "Staff"
+        createdAt:
+          type: string
+          format: date-time
+          description: Record creation timestamp
+          example: "2026-01-10T08:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2026-01-10T08:00:00Z"
+    
+    UserCreate:
+      type: object
+      required:
+        - name
+        - email
+        - role
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: User's full name
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          maxLength: 255
+          description: User's email address (must be unique)
+          example: "john.doe@example.com"
+        role:
+          type: string
+          minLength: 1
+          maxLength: 50
+          default: "Borrower"
+          description: User role
+          example: "Staff"
+    
+    UserUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: User's full name
+        email:
+          type: string
+          format: email
+          maxLength: 255
+          description: User's email address
+        role:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: User role
+    
+    # ==========================================================================
+    # LENDING LOG SCHEMAS
+    # ==========================================================================
+    
+    LendingLog:
+      type: object
+      required:
+        - id
+        - itemId
+        - userId
+        - dateLent
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID v4)
+          example: "770e8400-e29b-41d4-a716-446655440000"
+        itemId:
+          type: string
+          format: uuid
+          description: Reference to borrowed item
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        userId:
+          type: string
+          format: uuid
+          description: Reference to borrower
+          example: "660e8400-e29b-41d4-a716-446655440000"
+        dateLent:
+          type: string
+          format: date-time
+          description: When the item was lent out
+          example: "2026-01-15T09:00:00Z"
+        dateReturned:
+          type: string
+          format: date-time
+          nullable: true
+          description: When the item was returned (null if still out)
+          example: "2026-01-17T16:30:00Z"
+        conditionNotes:
+          type: string
+          maxLength: 1000
+          nullable: true
+          description: Notes on item condition
+          example: "Item in excellent condition"
+        createdAt:
+          type: string
+          format: date-time
+          description: Record creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+    
+    LendingLogWithUser:
+      allOf:
+        - $ref: '#/components/schemas/LendingLog'
+        - type: object
+          properties:
+            user:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                role:
+                  type: string
+    
+    LendingLogWithItem:
+      allOf:
+        - $ref: '#/components/schemas/LendingLog'
+        - type: object
+          properties:
+            item:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                category:
+                  type: string
+                status:
+                  type: string
+    
+    LendRequest:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: UUID of the user borrowing the item
+          example: "660e8400-e29b-41d4-a716-446655440000"
+        conditionNotes:
+          type: string
+          maxLength: 1000
+          nullable: true
+          description: Optional notes on item condition at time of lending
+          example: "Item in excellent condition, fully charged"
+    
+    ReturnRequest:
+      type: object
+      properties:
+        conditionNotes:
+          type: string
+          maxLength: 1000
+          nullable: true
+          description: Optional notes on item condition at time of return
+          example: "Returned in good condition, minor scratch on back"
+    
+    # ==========================================================================
+    # DASHBOARD SCHEMAS
+    # ==========================================================================
+    
+    Dashboard:
+      type: object
+      properties:
+        summary:
+          type: object
+          properties:
+            totalItems:
+              type: integer
+              description: Total number of items in inventory
+            availableItems:
+              type: integer
+              description: Number of items with status "Available"
+            lentItems:
+              type: integer
+              description: Number of items with status "Lent"
+            maintenanceItems:
+              type: integer
+              description: Number of items with status "Maintenance"
+        itemsCurrentlyOut:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemLentOut'
+    
+    # ==========================================================================
+    # ERROR SCHEMAS
+    # ==========================================================================
+    
+    Error:
+      type: object
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              description: Error code for programmatic handling
+              example: "ITEM_NOT_FOUND"
+            message:
+              type: string
+              description: Human-readable error message
+              example: "Item not found"
+            details:
+              type: object
+              description: Additional error details (optional)
+              additionalProperties: true
+  
+  responses:
+    BadRequest:
+      description: Bad request - validation error or invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            validationError:
+              summary: Validation error
+              value:
+                success: false
+                error:
+                  code: "VALIDATION_ERROR"
+                  message: "Validation failed"
+                  details:
+                    field: "name"
+                    error: "Item name is required"
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            itemNotFound:
+              summary: Item not found
+              value:
+                success: false
+                error:
+                  code: "ITEM_NOT_FOUND"
+                  message: "Item not found"
+            userNotFound:
+              summary: User not found
+              value:
+                success: false
+                error:
+                  code: "USER_NOT_FOUND"
+                  message: "User not found"
+    
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            serverError:
+              summary: Server error
+              value:
+                success: false
+                error:
+                  code: "INTERNAL_ERROR"
+                  message: "An unexpected error occurred"
+
+# ==============================================================================
+# SECURITY
+# ==============================================================================
+
+security: []  # No authentication required for MVP (A-001)
+
+# ==============================================================================
+# EXTERNAL DOCS
+# ==============================================================================
+
+externalDocs:
+  description: Feature Specification
+  url: ../spec.md
