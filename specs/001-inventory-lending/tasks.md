@@ -23,15 +23,15 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project root directory structure with backend/ and frontend/ folders
-- [ ] T002 Initialize Node.js backend project with package.json in backend/
-- [ ] T003 [P] Initialize React frontend project with package.json in frontend/
-- [ ] T004 [P] Install backend dependencies: express, sqlite3, cors, dotenv in backend/package.json
-- [ ] T005 [P] Install frontend dependencies: react, react-router-dom, axios in frontend/package.json
-- [ ] T006 [P] Configure ESLint for backend in backend/.eslintrc.json
-- [ ] T007 [P] Configure ESLint and Prettier for frontend in frontend/.eslintrc.json and frontend/.prettierrc
-- [ ] T008 Create .gitignore files for backend/ and frontend/ (exclude node_modules, .env, *.db)
-- [ ] T009 Create README.md with setup instructions, environment variables, and run commands
+- [X] T001 Create project root directory structure with backend/ and frontend/ folders
+- [X] T002 Initialize Node.js backend project with package.json in backend/
+- [X] T003 [P] Initialize React frontend project with package.json in frontend/
+- [X] T004 [P] Install backend dependencies: express, sqlite3, cors, dotenv in backend/package.json
+- [X] T005 [P] Install frontend dependencies: react, react-router-dom, axios in frontend/package.json
+- [X] T006 [P] Configure ESLint for backend in backend/.eslintrc.json
+- [X] T007 [P] Configure ESLint and Prettier for frontend in frontend/.eslintrc.json and frontend/.prettierrc
+- [X] T008 Create .gitignore files for backend/ and frontend/ (exclude node_modules, .env, *.db)
+- [X] T009 Create README.md with setup instructions, environment variables, and run commands
 
 ---
 
@@ -43,19 +43,19 @@
 
 ### Database Infrastructure
 
-- [ ] T010 Create database initialization script in backend/src/db/init.js
-- [ ] T011 Enable foreign key constraints (PRAGMA foreign_keys = ON) in backend/src/db/init.js
-- [ ] T012 Create database migration for Items table in backend/src/db/migrations/001_create_items.sql
-- [ ] T013 Create database migration for Users table in backend/src/db/migrations/002_create_users.sql
-- [ ] T014 Create database migration for LendingLogs table in backend/src/db/migrations/003_create_lending_logs.sql (include denormalized BorrowerName and BorrowerEmail fields for audit preservation per FR-016)
-- [ ] T015 Create database connection manager in backend/src/db/connection.js (handles async connections)
-- [ ] T016 Create migration runner script in backend/src/db/migrate.js
+- [X] T010 Create database initialization script in backend/src/db/init.js
+- [X] T011 Enable foreign key constraints (PRAGMA foreign_keys = ON) in backend/src/db/init.js
+- [X] T012 Create database migration for Items table in backend/src/db/migrations/001_create_items.sql
+- [X] T013 Create database migration for Users table in backend/src/db/migrations/002_create_users.sql
+- [X] T014 Create database migration for LendingLogs table in backend/src/db/migrations/003_create_lending_logs.sql (include denormalized BorrowerName and BorrowerEmail fields for audit preservation per FR-016)
+- [X] T015 Create database connection manager in backend/src/db/connection.js (handles async connections)
+- [X] T016 Create migration runner script in backend/src/db/migrate.js
 
 ### API Standards & Versioning (Constitution Compliance)
 
-- [ ] T016a Create API versioning middleware in backend/src/middleware/apiVersion.js (enforce /api/v1/ prefix per FR-001-API)
-- [ ] T016b Create response envelope middleware in backend/src/middleware/responseEnvelope.js (wrap all responses in { data, error, message } format per FR-002-API)
-- [ ] T016c Register versioning and envelope middleware in backend/src/app.js (apply globally to all routes)
+- [X] T016a Create API versioning middleware in backend/src/middleware/apiVersion.js (enforce /api/v1/ prefix per FR-001-API)
+- [X] T016b Create response envelope middleware in backend/src/middleware/responseEnvelope.js (wrap all responses in { data, error, message } format per FR-002-API)
+- [X] T016c Register versioning and envelope middleware in backend/src/app.js (apply globally to all routes)
 
 ### Backend API Infrastructure
 

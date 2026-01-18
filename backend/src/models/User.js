@@ -29,12 +29,12 @@ const User = sequelize.define('User', {
     allowNull: false,
     validate: {
       notEmpty: {
-        msg: 'User name is required'
+        msg: 'User name is required',
       },
       len: {
         args: [1, 100],
-        msg: 'User name must be between 1 and 100 characters'
-      }
+        msg: 'User name must be between 1 and 100 characters',
+      },
     },
     comment: "User's full name",
   },
@@ -44,15 +44,15 @@ const User = sequelize.define('User', {
     allowNull: false,
     unique: {
       name: 'unique_email',
-      msg: 'Email address already exists'
+      msg: 'Email address already exists',
     },
     validate: {
       isEmail: {
-        msg: 'Must be a valid email address'
+        msg: 'Must be a valid email address',
       },
       notEmpty: {
-        msg: 'Email is required'
-      }
+        msg: 'Email is required',
+      },
     },
     comment: "User's email address (unique identifier)",
   },
@@ -63,12 +63,12 @@ const User = sequelize.define('User', {
     defaultValue: 'Borrower',
     validate: {
       notEmpty: {
-        msg: 'Role is required'
+        msg: 'Role is required',
       },
       len: {
         args: [1, 50],
-        msg: 'Role must be between 1 and 50 characters'
-      }
+        msg: 'Role must be between 1 and 50 characters',
+      },
     },
     comment: 'User role (e.g., "Staff", "Admin", "Borrower")',
   },
@@ -85,7 +85,7 @@ const User = sequelize.define('User', {
     allowNull: false,
     defaultValue: DataTypes.NOW,
     comment: 'Last update timestamp',
-  }
+  },
 }, {
   tableName: 'Users',
   timestamps: true,

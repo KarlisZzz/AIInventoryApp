@@ -69,9 +69,11 @@ async function initializeDatabase() {
     console.log('✓ SQLite pragmas configured successfully');
     
     // Verify foreign keys are enabled
-    const [results] = await sequelize.query('PRAGMA foreign_keys');
-    if (results[0].foreign_keys !== 1) {
-      throw new Error('Failed to enable foreign key constraints');
+    const [result] = await sequelize.query('PRAGMA foreign_keys');
+    const fkValue = result?.foreign_keys;
+    
+    if (fkValue !== 1) {
+      throw new Error(`Failed to enable foreign key constraints (value: ${fkValue})`);
     }
     
     console.log('✓ Foreign key constraints verified: ENABLED');

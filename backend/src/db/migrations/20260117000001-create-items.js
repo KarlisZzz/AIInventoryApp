@@ -71,5 +71,5 @@ module.exports = {
   down: async (queryInterface) => {
     await queryInterface.dropTable('Items');
     console.log('✓ Items table dropped');
-  }
+  },
 };

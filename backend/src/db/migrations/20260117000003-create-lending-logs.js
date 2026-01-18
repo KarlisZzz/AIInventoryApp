@@ -48,6 +48,16 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
       },
+      borrowerName: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+        comment: 'Denormalized borrower name captured at lend time for audit preservation (FR-016)',
+      },
+      borrowerEmail: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+        comment: 'Denormalized borrower email captured at lend time for audit preservation (FR-016)',
+      },
       conditionNotes: {
         type: Sequelize.TEXT,
         allowNull: true,
@@ -91,5 +101,5 @@ module.exports = {
   down: async (queryInterface) => {
     await queryInterface.dropTable('LendingLogs');
     console.log('✓ LendingLogs table dropped');
-  }
+  },
 };

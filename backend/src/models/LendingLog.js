@@ -35,7 +35,7 @@ const LendingLog = sequelize.define('LendingLog', {
     allowNull: false,
     references: {
       model: 'Items',
-      key: 'id'
+      key: 'id',
     },
     onDelete: 'RESTRICT',        // Prevent item deletion if logs exist
     onUpdate: 'CASCADE',
@@ -47,7 +47,7 @@ const LendingLog = sequelize.define('LendingLog', {
     allowNull: false,
     references: {
       model: 'Users',
-      key: 'id'
+      key: 'id',
     },
     onDelete: 'RESTRICT',        // Prevent user deletion if logs exist
     onUpdate: 'CASCADE',
@@ -60,11 +60,11 @@ const LendingLog = sequelize.define('LendingLog', {
     defaultValue: DataTypes.NOW,
     validate: {
       isDate: {
-        msg: 'Date lent must be a valid date'
+        msg: 'Date lent must be a valid date',
       },
       notNull: {
-        msg: 'Date lent is required'
-      }
+        msg: 'Date lent is required',
+      },
     },
     comment: 'When the item was lent out',
   },
@@ -74,13 +74,13 @@ const LendingLog = sequelize.define('LendingLog', {
     allowNull: true,
     validate: {
       isDate: {
-        msg: 'Date returned must be a valid date'
+        msg: 'Date returned must be a valid date',
       },
       isAfterLendDate(value) {
         if (value && this.dateLent && value < this.dateLent) {
           throw new Error('Date returned cannot be before date lent');
         }
-      }
+      },
     },
     comment: 'When the item was returned (NULL if still out)',
   },
@@ -91,8 +91,8 @@ const LendingLog = sequelize.define('LendingLog', {
     validate: {
       len: {
         args: [0, 1000],
-        msg: 'Condition notes must not exceed 1000 characters'
-      }
+        msg: 'Condition notes must not exceed 1000 characters',
+      },
     },
     comment: 'Notes on item condition (at lend or return)',
   },
@@ -109,7 +109,7 @@ const LendingLog = sequelize.define('LendingLog', {
     allowNull: false,
     defaultValue: DataTypes.NOW,
     comment: 'Last update timestamp',
-  }
+  },
 }, {
   tableName: 'LendingLogs',
   timestamps: true,

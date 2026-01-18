@@ -30,12 +30,12 @@ const Item = sequelize.define('Item', {
     allowNull: false,
     validate: {
       notEmpty: {
-        msg: 'Item name is required'
+        msg: 'Item name is required',
       },
       len: {
         args: [1, 100],
-        msg: 'Item name must be between 1 and 100 characters'
-      }
+        msg: 'Item name must be between 1 and 100 characters',
+      },
     },
     comment: 'Name of the item (e.g., "Dell Laptop", "Projector")',
   },
@@ -46,8 +46,8 @@ const Item = sequelize.define('Item', {
     validate: {
       len: {
         args: [0, 500],
-        msg: 'Description must not exceed 500 characters'
-      }
+        msg: 'Description must not exceed 500 characters',
+      },
     },
     comment: 'Detailed description of the item',
   },
@@ -57,12 +57,12 @@ const Item = sequelize.define('Item', {
     allowNull: false,
     validate: {
       notEmpty: {
-        msg: 'Category is required'
+        msg: 'Category is required',
       },
       len: {
         args: [1, 50],
-        msg: 'Category must be between 1 and 50 characters'
-      }
+        msg: 'Category must be between 1 and 50 characters',
+      },
     },
     comment: 'Item category (e.g., "Hardware", "Tools", "Kitchen")',
   },
@@ -74,8 +74,8 @@ const Item = sequelize.define('Item', {
     validate: {
       isIn: {
         args: [['Available', 'Lent', 'Maintenance']],
-        msg: 'Status must be Available, Lent, or Maintenance'
-      }
+        msg: 'Status must be Available, Lent, or Maintenance',
+      },
     },
     comment: 'Current state of the item',
   },
@@ -92,7 +92,7 @@ const Item = sequelize.define('Item', {
     allowNull: false,
     defaultValue: DataTypes.NOW,
     comment: 'Last update timestamp',
-  }
+  },
 }, {
   tableName: 'Items',
   timestamps: true,
