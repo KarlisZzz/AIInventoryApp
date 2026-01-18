@@ -307,6 +307,8 @@ Tracks the complete history of lending transactions. Each log entry represents o
 | **id** | UUID | Primary Key, Default: `UUIDV4()` | Unique identifier for the log entry |
 | **itemId** | UUID | Foreign Key → `Items.id`, NOT NULL, ON DELETE: RESTRICT | Reference to the borrowed item |
 | **userId** | UUID | Foreign Key → `Users.id`, NOT NULL, ON DELETE: RESTRICT | Reference to the borrower |
+| **borrowerName** | STRING(100) | NOT NULL | Denormalized borrower name (captured at lend time for audit preservation per FR-016) |
+| **borrowerEmail** | STRING(255) | NOT NULL | Denormalized borrower email (captured at lend time for audit preservation per FR-016) |
 | **dateLent** | TIMESTAMP | NOT NULL, Default: NOW | When the item was lent out |
 | **dateReturned** | TIMESTAMP | NULL | When the item was returned (NULL if still out) |
 | **conditionNotes** | TEXT(1000) | NULL | Notes on item condition (at lend or return) |
@@ -351,6 +353,29 @@ const LendingLog = sequelize.define('LendingLog', {
     },
     onDelete: 'RESTRICT',        // Prevent user deletion if lending logs exist
     onUpdate: 'CASCADE',
+  },
+  
+  borrowerName: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
+    validate: {
+      notEmpty: { msg: 'Borrower name is required' },
+      len: {
+        args: [1, 100],
+        msg: 'Borrower name must be 1-100 characters'
+      }
+    },
+    comment: 'Denormalized from User.name at lend time for audit trail preservation (FR-016)'
+  },
+  
+  borrowerEmail: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    validate: {
+      isEmail: { msg: 'Borrower email must be valid format' },
+      notEmpty: { msg: 'Borrower email is required' }
+    },
+    comment: 'Denormalized from User.email at lend time for audit trail preservation (FR-016)'
   },
   
   dateLent: {
@@ -647,6 +672,16 @@ module.exports = {
         onDelete: 'RESTRICT',
         onUpdate: 'CASCADE',
       },
+      borrowerName: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+        comment: 'Denormalized from User.name at lend time (FR-016 audit preservation)',
+      },
+      borrowerEmail: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+        comment: 'Denormalized from User.email at lend time (FR-016 audit preservation)',
+      },
       dateLent: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -711,7 +746,7 @@ async lendItem(itemId, userId, conditionNotes) {
       throw new ValidationError(`Item is currently ${item.status} and cannot be lent`);
     }
     
-    // 2. Verify user exists
+    // 2. Verify user exists and capture borrower details for denormalization
     const user = await User.findByPk(userId, { transaction });
     if (!user) {
       throw new NotFoundError('User not found');
@@ -720,10 +755,12 @@ async lendItem(itemId, userId, conditionNotes) {
     // 3. Update item status (ATOMIC STEP 1)
     await item.update({ status: 'Lent' }, { transaction });
     
-    // 4. Create lending log (ATOMIC STEP 2)
+    // 4. Create lending log with denormalized borrower data (ATOMIC STEP 2, FR-016)
     const lendingLog = await LendingLog.create({
       itemId,
       userId,
+      borrowerName: user.name,         // Denormalized for audit trail preservation
+      borrowerEmail: user.email,       // Denormalized for audit trail preservation
       dateLent: new Date(),
       conditionNotes: conditionNotes || null,
     }, { transaction });

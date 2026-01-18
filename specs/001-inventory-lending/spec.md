@@ -91,7 +91,7 @@ As a staff member, I need a dashboard showing items currently out and the full s
 
 ### Edge Cases
 
-- What happens when a user is deleted but has active lending logs? The system should preserve lending history with user information frozen at deletion time (soft delete user data in logs).
+- What happens when a user is deleted but has active lending logs? The system preserves lending history via denormalized BorrowerName and BorrowerEmail fields captured at lend time. User deletion does not affect LendingLog audit trail. (User CRUD is out of scope per Assumption A-001.)
 - What happens when attempting to lend an item in "Maintenance" status? The system should prevent lending and display a message that the item is not available.
 - What happens when creating duplicate items with the same name? The system should allow it (multiple identical items may exist) but could warn the user.
 - What happens when the database connection fails during a lend/return transaction? The system should rollback any partial changes to maintain data integrity (atomic transactions).
@@ -102,64 +102,79 @@ As a staff member, I need a dashboard showing items currently out and the full s
 
 ### Functional Requirements
 
+#### API Design & Standards (Constitution Compliance)
+
+- **FR-001-API**: System MUST implement API versioning via URL path prefix `/api/v1/` for all endpoints
+- **FR-002-API**: System MUST return all API responses in a consistent JSON envelope format: `{ "data": <payload>, "error": <error_object_or_null>, "message": <string_or_null> }`
+- **FR-003-API**: System MUST use semantic HTTP status codes (200 OK, 201 Created, 400 Bad Request, 404 Not Found, 500 Internal Server Error)
+- **FR-004-API**: System MUST include API version documentation in OpenAPI specification
+
 #### Item Management (User Story 1)
 
-- **FR-001**: System MUST allow users to create new items with Name (required), Description (optional), Category (required), and Status (default: "Available")
-- **FR-002**: System MUST allow users to view all items in a table format with sortable columns
-- **FR-003**: System MUST allow users to edit item details (Name, Description, Category, Status)
-- **FR-004**: System MUST allow users to delete items that have status "Available" or "Maintenance"
-- **FR-005**: System MUST prevent deletion of items with status "Lent" and display an appropriate error message
-- **FR-006**: System MUST provide search/filter functionality across Name, Description, and Category fields
-- **FR-007**: System MUST support item status values: "Available", "Lent", "Maintenance"
+- **FR-005**: System MUST allow users to create new items with Name (required), Description (optional), Category (required), and Status (default: "Available")
+- **FR-006**: System MUST allow users to view all items in a table format with sortable columns
+- **FR-007**: System MUST allow users to edit item details (Name, Description, Category, Status)
+- **FR-008**: System MUST allow users to delete items that have status "Available" or "Maintenance" AND have zero associated LendingLog records (never been lent)
+- **FR-009**: System MUST prevent deletion of items with status "Lent" or with any LendingLog history and display an appropriate error message
+- **FR-010**: System MUST provide search/filter functionality across Name, Description, and Category fields
+- **FR-011**: System MUST support item status values: "Available", "Lent", "Maintenance"
 
-#### User Management
+#### User Management (Read-Only Operations)
 
-- **FR-008**: System MUST store user information including Name (required), Email (required, unique), and Role (required)
-- **FR-009**: System MUST validate email format before saving user records
-- **FR-010**: System MUST provide a user selection interface when lending items
+- **FR-012**: System MUST store user information including Name (required), Email (required, unique), and Role (required)
+- **FR-013**: System MUST validate email format before saving user records
+- **FR-014**: System MUST provide a user selection interface when lending items
+- **FR-015**: User creation, updates, and deletion are OUT OF SCOPE for this feature (handled by separate authentication/admin system per Assumption A-001)
+- **FR-016**: System MUST preserve user information in LendingLog records by denormalizing borrower details (BorrowerName, BorrowerEmail) at the time of lending to ensure audit trail integrity even if user records change later
 
 #### Lending Operations (User Story 2)
 
-- **FR-011**: System MUST allow lending an item with status "Available" to a user
-- **FR-012**: System MUST atomically update item status to "Lent" and create a LendingLog entry when lending occurs
-- **FR-013**: System MUST record DateLent (current timestamp) and optional ConditionNotes in the lending log
-- **FR-014**: System MUST prevent lending items with status "Lent" or "Maintenance"
-- **FR-015**: System MUST create a lending log that references both the Item ID and User ID
+- **FR-017**: System MUST allow lending an item with status "Available" to a user
+- **FR-018**: System MUST atomically update item status to "Lent", create a LendingLog entry, and denormalize borrower details (BorrowerName, BorrowerEmail) within a single database transaction (see FR-031 for transaction requirements)
+- **FR-019**: System MUST record DateLent (current timestamp), BorrowerName, BorrowerEmail, and optional ConditionNotes in the lending log
+- **FR-020**: System MUST prevent lending items with status "Lent" or "Maintenance"
+- **FR-021**: System MUST create a lending log that references both the Item ID and User ID
 
 #### Return Operations (User Story 3)
 
-- **FR-016**: System MUST allow returning an item with status "Lent"
-- **FR-017**: System MUST atomically update item status to "Available" and update the LendingLog with DateReturned when return occurs
-- **FR-018**: System MUST record DateReturned (current timestamp) and optional return ConditionNotes in the lending log
-- **FR-019**: System MUST prevent returning items with status "Available" or "Maintenance"
+- **FR-022**: System MUST allow returning an item with status "Lent"
+- **FR-023**: System MUST atomically update item status to "Available" and update the LendingLog with DateReturned within a single database transaction (see FR-031 for transaction requirements)
+- **FR-024**: System MUST record DateReturned (current timestamp) and optional return ConditionNotes in the lending log
+- **FR-025**: System MUST prevent returning items with status "Available" or "Maintenance"
 
 #### History & Reporting (User Story 4)
 
-- **FR-020**: System MUST display a complete lending history for each item showing all past LendingLog entries
-- **FR-021**: System MUST display lending history in chronological order (most recent first)
-- **FR-022**: System MUST show User Name, DateLent, DateReturned, and ConditionNotes for each log entry
+- **FR-026**: System MUST display a complete lending history for each item showing all past LendingLog entries
+- **FR-027**: System MUST display lending history in chronological order (most recent first)
+- **FR-028**: System MUST show BorrowerName (denormalized), DateLent, DateReturned, and ConditionNotes for each log entry to ensure audit trail integrity
 
 #### Dashboard (User Story 5)
 
-- **FR-023**: System MUST display a "Items Currently Out" section showing all items with status "Lent"
-- **FR-024**: System MUST display borrower name and date lent for each item in "Items Currently Out"
-- **FR-025**: System MUST provide a searchable inventory table on the dashboard
-- **FR-026**: System MUST update the dashboard in real-time after lend/return operations
+- **FR-029**: System MUST display a "Items Currently Out" section showing all items with status "Lent"
+- **FR-030**: System MUST display borrower name (from denormalized BorrowerName field) and date lent for each item in "Items Currently Out"
+- **FR-031-DASH**: System MUST provide a searchable inventory table on the dashboard
+- **FR-032**: System MUST update the dashboard after lend/return operations (via client-side cache invalidation)
 
-#### Data Integrity (Constitution Principle III)
+#### Data Integrity & Transactions (Constitution Principle III)
 
-- **FR-027**: System MUST execute all lending operations within database transactions to ensure atomicity
-- **FR-028**: System MUST execute all return operations within database transactions to ensure atomicity
-- **FR-029**: System MUST rollback transactions completely if any step fails
-- **FR-030**: System MUST enforce foreign key constraints between LendingLogs and Items, LendingLogs and Users
+- **FR-031**: System MUST execute all lending and return operations within explicit database transactions to ensure atomicity (referenced by FR-018, FR-023). Each transaction MUST: (a) BEGIN TRANSACTION at service layer entry, (b) perform all state updates, (c) COMMIT on success, (d) ROLLBACK completely on any failure
+- **FR-033**: System MUST enforce foreign key constraints between LendingLogs and Items, LendingLogs and Users via `PRAGMA foreign_keys = ON` at application startup
+- **FR-034**: System MUST use database-level RESTRICT constraint on Item deletion when LendingLog records exist (enforces FR-008/FR-009)
+
+### Performance & Testing Requirements
+
+- **FR-035**: System MUST implement performance benchmarking for SC-004 (dashboard load time) and SC-005 (search response time) using automated testing tools (e.g., k6, Lighthouse, or custom scripts)
+- **FR-036**: Performance tests MUST be executed against a representative dataset (minimum 500 items, 50 users, 1000 lending logs) to validate success criteria
+- **FR-037**: System MUST log response times for critical operations (lend, return, dashboard load, search) to enable performance monitoring
+- **FR-038**: Verification tasks MUST include automated performance test execution with pass/fail thresholds matching success criteria
 
 ### Key Entities
 
-- **Item**: Represents physical inventory items. Contains Name (text), Description (text), Category (text), Status (enum: "Available", "Lent", "Maintenance"). Status determines whether item can be lent. Uniquely identified to support lending operations.
+- **Item**: Represents physical inventory items. Contains Name (text), Description (text), Category (text), Status (enum: "Available", "Lent", "Maintenance"). Status determines whether item can be lent. Uniquely identified to support lending operations. Cannot be deleted if any LendingLog records exist (audit preservation).
 
 - **User**: Represents people who can borrow items. Contains Name (text), Email (text, unique), Role (text). Users are referenced in lending logs to track accountability.
 
-- **LendingLog**: Represents a single lending transaction. Contains reference to Item (foreign key), reference to User (foreign key), DateLent (timestamp), DateReturned (timestamp, nullable), ConditionNotes (text, optional). Each log tracks one complete borrow-return cycle. DateReturned is null while item is lent.
+- **LendingLog**: Represents a single lending transaction (immutable audit record). Contains reference to Item (foreign key), reference to User (foreign key), denormalized borrower data (BorrowerName, BorrowerEmail captured at lend time), DateLent (timestamp), DateReturned (timestamp, nullable), ConditionNotes (text, optional). Each log tracks one complete borrow-return cycle. DateReturned is null while item is lent. Denormalized borrower fields ensure audit trail integrity even if User records change later.
 
 ## Success Criteria *(mandatory)*
 
@@ -173,12 +188,12 @@ As a staff member, I need a dashboard showing items currently out and the full s
 - **SC-006**: 100% of lend/return operations either complete fully or rollback completely (no partial updates)
 - **SC-007**: Users can view lending history for any item with all transactions displayed correctly
 - **SC-008**: The system accurately reflects item availability status at all times (Available items are not lent, Lent items are not available)
-- **SC-009**: 95% of users can successfully complete a lend-and-return cycle without assistance on first attempt
+- **SC-009**: 95% of test users (minimum sample size: 20) can successfully complete a lend-and-return cycle without assistance on first attempt, as measured by moderated usability testing with task completion tracking. (Note: This is a UX research goal; implementation verification uses functional test coverage instead.)
 - **SC-010**: Zero data integrity violations occur during normal operations (no orphaned logs, inconsistent statuses, or missing references)
 
 ## Assumptions
 
-- **A-001**: User authentication and authorization will be handled separately (users are pre-created in the system)
+- **A-001**: User authentication, authorization, and CRUD operations (create/update/delete users) are handled by a separate admin system and are OUT OF SCOPE for this feature. Users are pre-existing in the database for lending operations.
 - **A-002**: Email notifications for overdue items are out of scope for this feature
 - **A-003**: Item quantity tracking (multiple identical items) is not required; each item is unique
 - **A-004**: Photo uploads for items are not required in this version

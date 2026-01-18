@@ -47,9 +47,15 @@
 - [ ] T011 Enable foreign key constraints (PRAGMA foreign_keys = ON) in backend/src/db/init.js
 - [ ] T012 Create database migration for Items table in backend/src/db/migrations/001_create_items.sql
 - [ ] T013 Create database migration for Users table in backend/src/db/migrations/002_create_users.sql
-- [ ] T014 Create database migration for LendingLogs table in backend/src/db/migrations/003_create_lending_logs.sql
+- [ ] T014 Create database migration for LendingLogs table in backend/src/db/migrations/003_create_lending_logs.sql (include denormalized BorrowerName and BorrowerEmail fields for audit preservation per FR-016)
 - [ ] T015 Create database connection manager in backend/src/db/connection.js (handles async connections)
 - [ ] T016 Create migration runner script in backend/src/db/migrate.js
+
+### API Standards & Versioning (Constitution Compliance)
+
+- [ ] T016a Create API versioning middleware in backend/src/middleware/apiVersion.js (enforce /api/v1/ prefix per FR-001-API)
+- [ ] T016b Create response envelope middleware in backend/src/middleware/responseEnvelope.js (wrap all responses in { data, error, message } format per FR-002-API)
+- [ ] T016c Register versioning and envelope middleware in backend/src/app.js (apply globally to all routes)
 
 ### Backend API Infrastructure
 
@@ -65,10 +71,12 @@
 
 - [ ] T024 [P] Create React app structure in frontend/src/App.jsx
 - [ ] T025 [P] Configure React Router in frontend/src/App.jsx for navigation
-- [ ] T026 [P] Create API client service in frontend/src/services/api.js (axios base configuration)
+- [ ] T026 [P] Create API client service in frontend/src/services/api.js (axios base configuration with /api/v1/ prefix and envelope unwrapping per FR-001-API/FR-002-API)
 - [ ] T027 [P] Create global error boundary component in frontend/src/components/ErrorBoundary.jsx
 - [ ] T028 [P] Create loading spinner component in frontend/src/components/Loading.jsx
-- [ ] T029 Create global styles in frontend/src/styles/global.css
+- [ ] T029 [P] Create global styles in frontend/src/styles/global.css with dark theme base styles (Constitution Principle VII)
+- [ ] T029a [P] Apply Dark Blue/Grey theme to Layout wrapper and Global CSS using brand colors defined in Constitution (bg: #0F172A, primary: #3B82F6, neutral: #94A3B8, glassmorphism: bg-white/5 border-white/10)
+- [ ] T029b [P] Configure Tailwind theme in tailwind.config.ts to extend default palette with constitutional colors (slate-900: #0F172A, slate-800: #1E293B, slate-400: #94A3B8, blue-500: #3B82F6)
 
 ### Verification Checkpoint
 
@@ -76,6 +84,8 @@
 - [ ] T031 **VERIFY**: Start backend server and confirm it listens on configured port without errors
 - [ ] T032 **VERIFY**: Start frontend dev server and confirm React app loads in browser
 - [ ] T033 **VERIFY**: Confirm foreign key constraints are enabled (query PRAGMA foreign_keys)
+- [ ] T033a **VERIFY**: Test any API endpoint and confirm response uses { data, error, message } envelope (FR-002-API)
+- [ ] T033b **VERIFY**: Test API routes use /api/v1/ prefix (FR-001-API)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -92,9 +102,9 @@
 - [ ] T034 [P] [US1] Create Item model class in backend/src/models/Item.js with CRUD methods
 - [ ] T035 [P] [US1] Create ItemService in backend/src/services/itemService.js (business logic, validation)
 - [ ] T036 [US1] Create ItemController in backend/src/controllers/itemController.js (create, getAll, getById, update, delete)
-- [ ] T037 [US1] Create item routes in backend/src/routes/items.js (POST /, GET /, GET /:id, PUT /:id, DELETE /:id)
+- [ ] T037 [US1] Create item routes in backend/src/routes/items.js (POST /, GET /, GET /:id, PUT /:id, DELETE /:id) with /api/v1/items prefix
 - [ ] T038 [US1] Add input validation for item creation (Name required, Category required, Status enum) in itemController
-- [ ] T039 [US1] Add validation to prevent deleting items with status "Lent" in itemService.js
+- [ ] T039 [US1] Add validation to prevent deleting items with status "Lent" OR with any LendingLog history in itemService.js (check LendingLog count before delete per FR-008/FR-009)
 - [ ] T040 [US1] Implement search/filter logic in itemService.js (query by Name, Description, Category)
 - [ ] T041 [US1] Register item routes in backend/src/app.js
 
@@ -117,6 +127,7 @@
 - [ ] T053 [US1] **VERIFY**: Edit an item and confirm changes persist after page refresh
 - [ ] T054 [US1] **VERIFY**: Delete an Available item and confirm it's removed from database
 - [ ] T055 [US1] **VERIFY**: Attempt to delete a Lent item and confirm error message is displayed
+- [ ] T055a [US1] **VERIFY**: Attempt to delete an Available item that has lending history (past LendingLog records) and confirm error prevents deletion (FR-008/FR-009 audit preservation)
 - [ ] T056 [US1] **VERIFY**: Search for items by name/category and confirm filtering works correctly
 - [ ] T057 [US1] **VERIFY**: Test with empty Name or Category and confirm validation prevents submission
 
@@ -133,14 +144,14 @@
 ### Backend - User Story 2
 
 - [ ] T058 [P] [US2] Create User model class in backend/src/models/User.js (read-only for this feature)
-- [ ] T059 [P] [US2] Create LendingLog model class in backend/src/models/LendingLog.js (create, update, query methods)
+- [ ] T059 [P] [US2] Create LendingLog model class in backend/src/models/LendingLog.js (create, update, query methods; includes BorrowerName, BorrowerEmail denormalized fields)
 - [ ] T060 [US2] Create LendingService in backend/src/services/lendingService.js (lend operation with transaction)
-- [ ] T061 [US2] Implement atomic lend operation in lendingService.js (BEGIN TRANSACTION, update Item, insert LendingLog, COMMIT)
+- [ ] T061 [US2] Implement atomic lend operation in lendingService.js (BEGIN TRANSACTION, update Item, insert LendingLog with denormalized BorrowerName/BorrowerEmail from User lookup per FR-016/FR-019, COMMIT)
 - [ ] T062 [US2] Add validation to prevent lending items with status "Lent" or "Maintenance" in lendingService.js
 - [ ] T063 [US2] Add rollback logic in lendingService.js for transaction failures
 - [ ] T064 [US2] Create LendingController in backend/src/controllers/lendingController.js (lendItem method)
-- [ ] T065 [US2] Create lending routes in backend/src/routes/lending.js (POST /lend)
-- [ ] T066 [US2] Create user routes in backend/src/routes/users.js (GET / for user selection)
+- [ ] T065 [US2] Create lending routes in backend/src/routes/lending.js (POST /lend) with /api/v1/ prefix
+- [ ] T066 [US2] Create user routes in backend/src/routes/users.js (GET / for user selection only; user CRUD out of scope per FR-015) with /api/v1/users prefix
 - [ ] T067 [US2] Register lending and user routes in backend/src/app.js
 
 ### Frontend - User Story 2
@@ -163,6 +174,7 @@
 - [ ] T080 [US2] **VERIFY**: Simulate database error during lend and confirm rollback (no partial updates)
 - [ ] T081 [US2] **VERIFY**: Search for user by name/email in UserSelect and confirm filtering works
 - [ ] T082 [US2] **VERIFY**: Add condition notes during lending and confirm they're saved in LendingLog
+- [ ] T082a [US2] **VERIFY**: Lend an item and confirm LendingLog record includes denormalized BorrowerName and BorrowerEmail fields copied from User (FR-016/FR-019 audit preservation)
 
 **Checkpoint**: User Story 2 complete - Items can be lent with full transactional integrity
 
@@ -181,7 +193,7 @@
 - [ ] T085 [US3] Add validation to prevent returning items with status "Available" or "Maintenance" in lendingService.js
 - [ ] T086 [US3] Add rollback logic for return transaction failures in lendingService.js
 - [ ] T087 [US3] Add returnItem method in backend/src/controllers/lendingController.js
-- [ ] T088 [US3] Create return route in backend/src/routes/lending.js (POST /return)
+- [ ] T088 [US3] Create return route in backend/src/routes/lending.js (POST /return) with /api/v1/ prefix
 
 ### Frontend - User Story 3
 
@@ -214,10 +226,10 @@
 
 ### Backend - User Story 4
 
-- [ ] T102 [US4] Implement getHistoryByItemId method in backend/src/models/LendingLog.js (with JOIN to Users)
+- [ ] T102 [US4] Implement getHistoryByItemId method in backend/src/models/LendingLog.js (query with denormalized BorrowerName field per FR-028)
 - [ ] T103 [US4] Create getItemHistory method in backend/src/services/lendingService.js (with date filtering)
 - [ ] T104 [US4] Add getHistory method in backend/src/controllers/lendingController.js
-- [ ] T105 [US4] Create history route in backend/src/routes/lending.js (GET /history/:itemId)
+- [ ] T105 [US4] Create history route in backend/src/routes/lending.js (GET /history/:itemId) with /api/v1/ prefix
 
 ### Frontend - User Story 4
 
@@ -233,10 +245,10 @@
 ### Verification Checkpoint - User Story 4
 
 - [ ] T114 [US4] **VERIFY**: View history for item with multiple transactions and confirm chronological order (newest first)
-- [ ] T115 [US4] **VERIFY**: Confirm all fields displayed correctly (User, DateLent, DateReturned, ConditionNotes)
+- [ ] T115 [US4] **VERIFY**: Confirm all fields displayed correctly (BorrowerName from denormalized field, DateLent, DateReturned, ConditionNotes per FR-028)
 - [ ] T116 [US4] **VERIFY**: View history for never-lent item and confirm "No lending history" message
 - [ ] T117 [US4] **VERIFY**: Filter history by date range and confirm only matching transactions shown
-- [ ] T118 [US4] **VERIFY**: Verify user names displayed (not just User IDs) via JOIN query
+- [ ] T118 [US4] **VERIFY**: Verify borrower names displayed from denormalized BorrowerName field (audit trail preserved even if user data changes)
 
 **Checkpoint**: User Story 4 complete - Full audit trail available for all items
 
@@ -252,7 +264,7 @@
 
 - [ ] T119 [US5] Implement getCurrentlyLentItems method in backend/src/services/itemService.js (query Items with status "Lent")
 - [ ] T120 [US5] Add getDashboardData method in backend/src/controllers/itemController.js (items currently out + all items)
-- [ ] T121 [US5] Create dashboard route in backend/src/routes/dashboard.js (GET /dashboard)
+- [ ] T121 [US5] Create dashboard route in backend/src/routes/dashboard.js (GET /dashboard) with /api/v1/ prefix
 - [ ] T122 [US5] Register dashboard route in backend/src/app.js
 
 ### Frontend - User Story 5
@@ -275,6 +287,15 @@
 - [ ] T135 [US5] **VERIFY**: Search box filters inventory in real-time (under 1 second per SC-005)
 - [ ] T136 [US5] **VERIFY**: Dashboard updates immediately after lending/returning an item
 - [ ] T137 [US5] **VERIFY**: When no items are lent, "Currently Out" section shows "No items currently lent"
+
+### Performance Testing (FR-035 to FR-038)
+
+- [ ] T137a [P] [US5] Create test dataset generator script in backend/src/scripts/generateTestData.js (500 items, 50 users, 1000 lending logs per FR-036)
+- [ ] T137b [P] [US5] Create performance benchmark suite in backend/tests/performance/ using k6 or custom Node.js script
+- [ ] T137c [US5] Add dashboard load time test (target: <2s per SC-004/FR-035)
+- [ ] T137d [US5] Add search response time test (target: <1s per SC-005/FR-035)
+- [ ] T137e [US5] Add response time logging to itemController and lendingController per FR-037
+- [ ] T137f **VERIFY**: Run performance tests against test dataset and confirm all thresholds met (SC-004, SC-005)
 
 **Checkpoint**: User Story 5 complete - Dashboard provides at-a-glance system status
 
@@ -335,9 +356,9 @@
 
 ## Summary
 
-**Total Tasks**: 170
-**Parallelizable Tasks**: 45 (marked with [P])
-**Verification Checkpoints**: 36
+**Total Tasks**: 185 (includes 13 new tasks: 3 API versioning, 1 denormalization migration update, 6 performance testing, 2 UI theme tasks, 3 additional verifications)
+**Parallelizable Tasks**: 50 (marked with [P])
+**Verification Checkpoints**: 42 (includes performance benchmarks)
 
 **Task Breakdown by User Story**:
 - Setup: 9 tasks

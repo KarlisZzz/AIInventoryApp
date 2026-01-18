@@ -3,29 +3,31 @@
 SYNC IMPACT REPORT - Constitution Update
 
 
-VERSION CHANGE: (none)  1.0.0
-RATIONALE: Initial constitution for Inventory & Lending Application
+VERSION CHANGE: 1.0.0 → 1.1.0
+RATIONALE: MINOR version increment - Added new principle (VII. UI/UX Design Standards) establishing visual design guidelines and color palette for frontend implementation
 
 ADDED SECTIONS:
-- I. RESTful API Design
-- II. Modular Architecture
-- III. Atomic Transaction Integrity (NON-NEGOTIABLE)
-- IV. Data Integrity & Constraints
-- V. Clean Code & Async Operations
-- VI. Component-Based UI Development
-- Technology Stack Requirements
-- Development Workflow
+- VII. UI/UX Design Standards (NEW in v1.1.0)
+  - Color Palette (primary, neutral, background colors)
+  - Design Style (glassmorphism, high-contrast dashboard)
+  - Visual Feedback Standards (status badges, dark theme)
+
+MODIFIED PRINCIPLES:
+- None (existing principles I-VI unchanged)
 
 TEMPLATES STATUS:
- plan-template.md - Reviewed, aligns with principles (constitution check gates present)
- spec-template.md - Reviewed, aligns with requirements structure
- tasks-template.md - Reviewed, aligns with phased approach and testing discipline
+✅ plan-template.md - Aligns (constitution check gates present)
+✅ spec-template.md - Aligns (requirements structure compatible)
+⚠️  frontend-plan.md - REQUIRES UPDATE: Add Tailwind color configuration matching Principle VII palette
+⚠️  frontend-tasks.md - REQUIRES UPDATE: Add task for implementing glassmorphism card styles
 
 FOLLOW-UP TODOS:
-- None (all placeholders filled)
+- Update frontend-plan.md to include Tailwind config with constitutional color palette
+- Add frontend task for implementing glassmorphism card component styles
+- Update frontend-tasks.md to include status badge color standards (muted green/yellow for dark theme)
 
 RATIFICATION DATE: 2026-01-17 (initial adoption)
-LAST AMENDED: 2026-01-17 (same as ratification - first version)
+LAST AMENDED: 2026-01-18 (UI/UX standards added)
 
 
 -->
@@ -108,6 +110,48 @@ React frontend MUST use Functional Components with Hooks:
 
 **Rationale**: Functional components with hooks are the modern React standard, offering better code reuse, simpler testing, and improved performance optimization opportunities.
 
+### VII. UI/UX Design Standards
+
+All frontend interfaces MUST follow a consistent, professional design system:
+
+**Color Palette**:
+- **Primary (Dark Blue)**: 
+  - `#1E293B` (Slate-800) for backgrounds, sidebars, and navigation elements
+  - `#3B82F6` (Blue-500) for primary action buttons, links, and interactive elements
+- **Neutral (Grey)**: 
+  - `#94A3B8` (Slate-400) for body text, labels, and secondary borders
+  - `#64748B` (Slate-500) for secondary text and disabled states
+- **Background**: 
+  - `#0F172A` (Slate-900) for the main application background (deep grey-blue)
+  - `#1E293B` (Slate-800) for elevated surfaces and panels
+- **Status Colors** (muted for dark theme compatibility):
+  - Success: `#10B981` (Green-500) with reduced opacity for badges
+  - Warning: `#F59E0B` (Amber-500) with reduced opacity for badges
+  - Error: `#EF4444` (Red-500) for destructive actions and alerts
+
+**Design Style**:
+- **Professional Dashboard Aesthetic**: High-contrast, clean layouts optimized for data visualization and task completion
+- **Glassmorphism**: Cards and elevated surfaces MUST use subtle transparency (`bg-white/5` or `bg-slate-800/50`) with semi-transparent borders (`border-white/10`) to create depth while maintaining readability
+- **Spacing & Layout**: Consistent padding (Tailwind scale: `p-4`, `p-6`, `p-8`) and gaps (`gap-4`, `gap-6`) for visual rhythm
+- **Typography**: Clear hierarchy with font weights (400 for body, 500 for emphasis, 600-700 for headings)
+
+**Visual Feedback**:
+- **Status Badges**: MUST remain visually distinct (Green for Available/Success, Yellow for Maintenance/Warning, Red for Errors) but use muted opacity (`bg-green-500/20 text-green-400`) to harmonize with dark theme
+- **Interactive States**: 
+  - Hover: Increase opacity or add subtle `ring-2 ring-blue-500/50`
+  - Focus: Clear focus rings (`focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900`)
+  - Disabled: Reduce opacity to 40% and change cursor to `cursor-not-allowed`
+- **Loading States**: Skeleton screens or spinners using primary color with animation
+- **Empty States**: Friendly illustrations or icons with helpful messaging
+
+**Accessibility Requirements**:
+- Minimum contrast ratio of 4.5:1 for normal text, 3:1 for large text (WCAG AA)
+- All interactive elements MUST be keyboard accessible
+- ARIA labels required for icon-only buttons and complex widgets
+- Focus indicators MUST be clearly visible on all interactive elements
+
+**Rationale**: A unified design system ensures visual consistency, improves usability, reduces decision fatigue for developers, and creates a professional user experience. The dark theme with glassmorphism provides a modern aesthetic while reducing eye strain during extended use. Muted status colors maintain semantic meaning without overwhelming the interface.
+
 ## Technology Stack Requirements
 
 **Frontend**:
@@ -173,4 +217,4 @@ This constitution supersedes all other development practices and guidelines. Any
 - **MINOR**: Addition of new principles or significant expansion of existing guidance
 - **PATCH**: Clarifications, wording improvements, or non-semantic refinements
 
-**Version**: 1.0.0 | **Ratified**: 2026-01-17 | **Last Amended**: 2026-01-17
+**Version**: 1.1.0 | **Ratified**: 2026-01-17 | **Last Amended**: 2026-01-18
