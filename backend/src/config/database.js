@@ -10,8 +10,8 @@
 const { Sequelize } = require('sequelize');
 const path = require('path');
 
-// Database file path - default to data/inventory.db
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../../../data/inventory.db');
+// Database file path - default to backend/data/inventory.db
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../../data/inventory.db');
 
 // Sequelize instance configuration
 const sequelize = new Sequelize({

@@ -99,37 +99,37 @@
 
 ### Backend - User Story 1
 
-- [ ] T034 [P] [US1] Create Item model class in backend/src/models/Item.js with CRUD methods
-- [ ] T035 [P] [US1] Create ItemService in backend/src/services/itemService.js (business logic, validation)
-- [ ] T036 [US1] Create ItemController in backend/src/controllers/itemController.js (create, getAll, getById, update, delete)
-- [ ] T037 [US1] Create item routes in backend/src/routes/items.js (POST /, GET /, GET /:id, PUT /:id, DELETE /:id) with /api/v1/items prefix
-- [ ] T038 [US1] Add input validation for item creation (Name required, Category required, Status enum) in itemController
-- [ ] T039 [US1] Add validation to prevent deleting items with status "Lent" OR with any LendingLog history in itemService.js (check LendingLog count before delete per FR-008/FR-009)
-- [ ] T040 [US1] Implement search/filter logic in itemService.js (query by Name, Description, Category)
-- [ ] T041 [US1] Register item routes in backend/src/app.js
+- [X] T034 [P] [US1] Create Item model class in backend/src/models/Item.js with CRUD methods
+- [X] T035 [P] [US1] Create ItemService in backend/src/services/itemService.js (business logic, validation)
+- [X] T036 [US1] Create ItemController in backend/src/controllers/itemController.js (create, getAll, getById, update, delete)
+- [X] T037 [US1] Create item routes in backend/src/routes/items.js (POST /, GET /, GET /:id, PUT /:id, DELETE /:id) with /api/v1/items prefix
+- [X] T038 [US1] Add input validation for item creation (Name required, Category required, Status enum) in itemController
+- [X] T039 [US1] Add validation to prevent deleting items with status "Lent" OR with any LendingLog history in itemService.js (check LendingLog count before delete per FR-008/FR-009)
+- [X] T040 [US1] Implement search/filter logic in itemService.js (query by Name, Description, Category)
+- [X] T041 [US1] Register item routes in backend/src/app.js
 
 ### Frontend - User Story 1
 
-- [ ] T042 [P] [US1] Create item API service in frontend/src/services/itemService.js (CRUD API calls)
-- [ ] T043 [P] [US1] Create ItemForm component in frontend/src/components/ItemForm.jsx (create/edit form)
-- [ ] T044 [P] [US1] Create ItemList component in frontend/src/components/ItemList.jsx (table view with sorting)
-- [ ] T045 [P] [US1] Create ItemCard component in frontend/src/components/ItemCard.jsx (individual item display)
-- [ ] T046 [P] [US1] Create SearchBar component in frontend/src/components/SearchBar.jsx (filter input)
-- [ ] T047 [US1] Create InventoryPage in frontend/src/pages/InventoryPage.jsx (main page integrating all components)
-- [ ] T048 [US1] Add form validation in ItemForm.jsx (required fields, max lengths)
-- [ ] T049 [US1] Implement delete confirmation dialog in ItemCard.jsx
-- [ ] T050 [US1] Add real-time search filtering in InventoryPage.jsx
-- [ ] T051 [US1] Add route for /inventory in frontend/src/App.jsx
+- [X] T042 [P] [US1] Create item API service in frontend/src/services/itemService.js (CRUD API calls)
+- [X] T043 [P] [US1] Create ItemForm component in frontend/src/components/ItemForm.jsx (create/edit form)
+- [X] T044 [P] [US1] Create ItemList component in frontend/src/components/ItemList.jsx (table view with sorting)
+- [X] T045 [P] [US1] Create ItemCard component in frontend/src/components/ItemCard.jsx (individual item display)
+- [X] T046 [P] [US1] Create SearchBar component in frontend/src/components/SearchBar.jsx (filter input)
+- [X] T047 [US1] Create InventoryPage in frontend/src/pages/InventoryPage.jsx (main page integrating all components)
+- [X] T048 [US1] Add form validation in ItemForm.jsx (required fields, max lengths)
+- [X] T049 [US1] Implement delete confirmation dialog in ItemCard.jsx
+- [X] T050 [US1] Add real-time search filtering in InventoryPage.jsx
+- [X] T051 [US1] Add route for /inventory in frontend/src/App.jsx
 
 ### Verification Checkpoint - User Story 1
 
-- [ ] T052 [US1] **VERIFY**: Create a new item via UI and confirm it appears in the item list
-- [ ] T053 [US1] **VERIFY**: Edit an item and confirm changes persist after page refresh
-- [ ] T054 [US1] **VERIFY**: Delete an Available item and confirm it's removed from database
-- [ ] T055 [US1] **VERIFY**: Attempt to delete a Lent item and confirm error message is displayed
+- [X] T052 [US1] **VERIFY**: Create a new item via UI and confirm it appears in the item list
+- [X] T053 [US1] **VERIFY**: Edit an item and confirm changes persist after page refresh
+- [X] T054 [US1] **VERIFY**: Delete an Available item and confirm it's removed from database
+- [X] T055 [US1] **VERIFY**: Attempt to delete a Lent item and confirm error message is displayed
 - [ ] T055a [US1] **VERIFY**: Attempt to delete an Available item that has lending history (past LendingLog records) and confirm error prevents deletion (FR-008/FR-009 audit preservation)
-- [ ] T056 [US1] **VERIFY**: Search for items by name/category and confirm filtering works correctly
-- [ ] T057 [US1] **VERIFY**: Test with empty Name or Category and confirm validation prevents submission
+- [X] T056 [US1] **VERIFY**: Search for items by name/category and confirm filtering works correctly
+- [X] T057 [US1] **VERIFY**: Test with empty Name or Category and confirm validation prevents submission
 
 **Checkpoint**: User Story 1 complete - Items can be managed independently of lending operations
 

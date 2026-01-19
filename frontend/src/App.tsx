@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
-import Inventory from './pages/Inventory';
+import InventoryPage from './pages/InventoryPage';
 import ItemDetail from './pages/ItemDetail';
 
 /**
@@ -22,7 +22,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Dashboard />} />
-            <Route path="inventory" element={<Inventory />} />
+            <Route path="inventory" element={<InventoryPage />} />
             <Route path="inventory/:itemId" element={<ItemDetail />} />
             
             {/* 404 Not Found */}

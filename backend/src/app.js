@@ -80,10 +80,9 @@ if (config.isDevelopment) {
 // API Routes (Versioned - /api/v1/)
 // ============================================================================
 
-// TODO: Register route modules here as they are created
-// Example:
-// const itemRoutes = require('./routes/items');
-// app.use('/api/v1/items', itemRoutes);
+// Item routes (T041)
+const itemRoutes = require('./routes/items');
+app.use('/api/v1/items', itemRoutes);
 
 // ============================================================================
 // Error Handling
