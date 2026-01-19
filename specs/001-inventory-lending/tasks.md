@@ -59,33 +59,33 @@
 
 ### Backend API Infrastructure
 
-- [ ] T017 [P] Create Express app setup in backend/src/app.js (CORS, JSON parsing, error handling)
-- [ ] T018 [P] Create environment configuration loader in backend/src/config/env.js
-- [ ] T019 [P] Create global error handler middleware in backend/src/middleware/errorHandler.js
-- [ ] T020 [P] Create request logger middleware in backend/src/middleware/logger.js
-- [ ] T021 [P] Create input validation middleware in backend/src/middleware/validator.js
-- [ ] T022 Create server entry point in backend/src/server.js (starts Express on configured port)
-- [ ] T023 Create .env.example file documenting required environment variables (PORT, DB_PATH)
+- [X] T017 [P] Create Express app setup in backend/src/app.js (CORS, JSON parsing, error handling)
+- [X] T018 [P] Create environment configuration loader in backend/src/config/env.js
+- [X] T019 [P] Create global error handler middleware in backend/src/middleware/errorHandler.js
+- [X] T020 [P] Create request logger middleware in backend/src/middleware/logger.js
+- [X] T021 [P] Create input validation middleware in backend/src/middleware/validator.js
+- [X] T022 Create server entry point in backend/src/server.js (starts Express on configured port)
+- [X] T023 Create .env.example file documenting required environment variables (PORT, DB_PATH)
 
 ### Frontend Infrastructure
 
-- [ ] T024 [P] Create React app structure in frontend/src/App.jsx
-- [ ] T025 [P] Configure React Router in frontend/src/App.jsx for navigation
-- [ ] T026 [P] Create API client service in frontend/src/services/api.js (axios base configuration with /api/v1/ prefix and envelope unwrapping per FR-001-API/FR-002-API)
-- [ ] T027 [P] Create global error boundary component in frontend/src/components/ErrorBoundary.jsx
-- [ ] T028 [P] Create loading spinner component in frontend/src/components/Loading.jsx
-- [ ] T029 [P] Create global styles in frontend/src/styles/global.css with dark theme base styles (Constitution Principle VII)
-- [ ] T029a [P] Apply Dark Blue/Grey theme to Layout wrapper and Global CSS using brand colors defined in Constitution (bg: #0F172A, primary: #3B82F6, neutral: #94A3B8, glassmorphism: bg-white/5 border-white/10)
-- [ ] T029b [P] Configure Tailwind theme in tailwind.config.ts to extend default palette with constitutional colors (slate-900: #0F172A, slate-800: #1E293B, slate-400: #94A3B8, blue-500: #3B82F6)
+- [X] T024 [P] Create React app structure in frontend/src/App.jsx
+- [X] T025 [P] Configure React Router in frontend/src/App.jsx for navigation
+- [X] T026 [P] Create API client service in frontend/src/services/api.js (axios base configuration with /api/v1/ prefix and envelope unwrapping per FR-001-API/FR-002-API)
+- [X] T027 [P] Create global error boundary component in frontend/src/components/ErrorBoundary.jsx
+- [X] T028 [P] Create loading spinner component in frontend/src/components/Loading.jsx
+- [X] T029 [P] Create global styles in frontend/src/styles/global.css with dark theme base styles (Constitution Principle VII)
+- [X] T029a [P] Apply Dark Blue/Grey theme to Layout wrapper and Global CSS using brand colors defined in Constitution (bg: #0F172A, primary: #3B82F6, neutral: #94A3B8, glassmorphism: bg-white/5 border-white/10)
+- [X] T029b [P] Configure Tailwind theme in tailwind.config.ts to extend default palette with constitutional colors (slate-900: #0F172A, slate-800: #1E293B, slate-400: #94A3B8, blue-500: #3B82F6)
 
 ### Verification Checkpoint
 
-- [ ] T030 **VERIFY**: Run database migrations successfully and confirm all tables created
-- [ ] T031 **VERIFY**: Start backend server and confirm it listens on configured port without errors
-- [ ] T032 **VERIFY**: Start frontend dev server and confirm React app loads in browser
-- [ ] T033 **VERIFY**: Confirm foreign key constraints are enabled (query PRAGMA foreign_keys)
-- [ ] T033a **VERIFY**: Test any API endpoint and confirm response uses { data, error, message } envelope (FR-002-API)
-- [ ] T033b **VERIFY**: Test API routes use /api/v1/ prefix (FR-001-API)
+- [X] T030 **VERIFY**: Run database migrations successfully and confirm all tables created
+- [X] T031 **VERIFY**: Start backend server and confirm it listens on configured port without errors
+- [X] T032 **VERIFY**: Start frontend dev server and confirm React app loads in browser
+- [X] T033 **VERIFY**: Confirm foreign key constraints are enabled (query PRAGMA foreign_keys)
+- [X] T033a **VERIFY**: Test any API endpoint and confirm response uses { data, error, message } envelope (FR-002-API)
+- [X] T033b **VERIFY**: Test API routes use /api/v1/ prefix (FR-001-API)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

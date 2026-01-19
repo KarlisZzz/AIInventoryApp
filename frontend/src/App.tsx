@@ -1,34 +1,44 @@
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
-import './App.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import ErrorBoundary from './components/ErrorBoundary';
+import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
+import Inventory from './pages/Inventory';
+import ItemDetail from './pages/ItemDetail';
 
+/**
+ * Main App Component
+ * Configures React Router with all application routes
+ * Wraps app in ErrorBoundary for global error handling
+ * 
+ * Routes:
+ * - / : Dashboard (summary and quick actions)
+ * - /inventory : Inventory list with search and filters
+ * - /inventory/:itemId : Item detail page with lending history
+ */
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank" rel="noreferrer">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank" rel="noreferrer">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="inventory" element={<Inventory />} />
+            <Route path="inventory/:itemId" element={<ItemDetail />} />
+            
+            {/* 404 Not Found */}
+            <Route path="*" element={
+              <div className="container mx-auto px-4 py-16 text-center">
+                <h1 className="text-6xl font-bold text-slate-200 mb-4">404</h1>
+                <p className="text-xl text-slate-400 mb-8">Page not found</p>
+                <a href="/" className="btn-primary inline-block">
+                  Go to Dashboard
+                </a>
+              </div>
+            } />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

@@ -12,8 +12,12 @@
 
 const express = require('express');
 const cors = require('cors');
+const config = require('./config/env');
 const { enforceApiVersion } = require('./middleware/apiVersion');
 const { attachResponseHelpers } = require('./middleware/responseEnvelope');
+const { requestLogger, performanceMonitor, getMetrics } = require('./middleware/logger');
+const { sanitizeInput } = require('./middleware/validator');
+const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
@@ -21,17 +25,19 @@ const app = express();
 // Global Middleware
 // ============================================================================
 
+// Request logging and performance monitoring
+app.use(requestLogger);
+app.use(performanceMonitor);
+
 // CORS - Allow cross-origin requests from frontend
-const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
-  credentials: true,
-  optionsSuccessStatus: 200,
-};
-app.use(cors(corsOptions));
+app.use(cors(config.cors));
 
 // Body parsing - JSON and URL-encoded
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Input sanitization - Remove null bytes and trim whitespace
+app.use(sanitizeInput);
 
 // Response envelope helpers - Attach before routes (FR-002-API)
 app.use(attachResponseHelpers);
@@ -58,10 +64,17 @@ app.get('/ping', (req, res) => {
 app.get('/', (req, res) => {
   res.success({
     name: 'Inventory & Lending API',
-    version: process.env.API_VERSION || 'v1',
-    documentation: '/api/v1/docs',
+    version: config.api.version,
+    documentation: `${config.api.prefix}/docs`,
   }, 'Welcome to Inventory & Lending API');
 });
+
+// Metrics endpoint (development only)
+if (config.isDevelopment) {
+  app.get('/metrics', (req, res) => {
+    res.success(getMetrics(), 'Performance metrics');
+  });
+}
 
 // ============================================================================
 // API Routes (Versioned - /api/v1/)
@@ -76,44 +89,10 @@ app.get('/', (req, res) => {
 // Error Handling
 // ============================================================================
 
-// 404 handler - Route not found
-app.use((req, res) => {
-  res.notFound(`Route not found: ${req.method} ${req.path}`, {
-    method: req.method,
-    path: req.path,
-  });
-});
+// 404 handler - Route not found (must be after all routes)
+app.use(notFoundHandler);
 
-// Global error handler
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  
-  // Handle specific error types
-  if (err.name === 'ValidationError') {
-    return res.badRequest('Validation failed', {
-      errors: err.errors || err.message,
-    });
-  }
-  
-  if (err.name === 'SequelizeUniqueConstraintError') {
-    return res.conflict('Resource already exists', {
-      fields: err.fields,
-    });
-  }
-  
-  if (err.name === 'SequelizeForeignKeyConstraintError') {
-    return res.badRequest('Foreign key constraint violation', {
-      fields: err.fields,
-      table: err.table,
-    });
-  }
-  
-  // Default to 500 internal server error
-  res.serverError(
-    err.message || 'An unexpected error occurred',
-    process.env.NODE_ENV === 'development' ? { stack: err.stack } : null,
-  );
-});
+// Global error handler (must be last)
+app.use(errorHandler);
 
 module.exports = app;
