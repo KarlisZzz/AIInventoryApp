@@ -28,7 +28,8 @@
     "express": "^5.2.1",
     "sequelize": "^6.37.7",
     "sqlite3": "^5.1.7",
-    "umzug": "^3.8.2"
+    "umzug": "^3.8.2",
+    "xss": "^1.0.15"
   },
   "devDependencies": {
     "axios": "^1.13.2",

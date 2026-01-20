@@ -118,11 +118,30 @@ inventory/
 ### Backend (`.env`)
 
 ```bash
+# Server Configuration
 PORT=3001
-DB_PATH=./data/inventory.db
 NODE_ENV=development
 CORS_ORIGIN=http://localhost:5173
+
+# Database Configuration
+# ⚠️ SECURITY: Store database file outside web root
+DB_PATH=./data/inventory.db
+
+# Security Configuration (Production)
+# ENABLE_RATE_LIMITING=true
+# ENABLE_CSRF_PROTECTION=true
+# ENABLE_XSS_SANITIZATION=true
+# MAX_REQUESTS_PER_MINUTE=100
+
+# Optional: JWT secret for future authentication
+# JWT_SECRET=<generate-secure-random-string>
 ```
+
+**Security Best Practices**:
+- **Database Location**: Store `DB_PATH` outside the web-accessible directory
+- **File Permissions**: Ensure database file has restricted permissions (600 or 644)
+- **Environment Files**: Never commit `.env` files to version control
+- **Production**: Enable all security middleware in production environment
 
 ### Frontend (`.env.local`)
 

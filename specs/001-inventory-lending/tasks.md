@@ -305,25 +305,25 @@
 
 **Purpose**: Implement security requirements and comprehensive data validation
 
-- [ ] T138 [P] Add parameterized query validation to all models in backend/src/models/ (SQL injection prevention)
-- [ ] T139 [P] Implement XSS sanitization middleware in backend/src/middleware/sanitizer.js
-- [ ] T140 [P] Add CSRF protection middleware in backend/src/middleware/csrf.js
-- [ ] T141 [P] Implement rate limiting middleware in backend/src/middleware/rateLimiter.js (100 req/min per IP)
-- [ ] T142 [P] Add input length validation in backend/src/middleware/validator.js (Name 100, Description 500, etc.)
-- [ ] T143 Create .env file configuration guide in README.md (DB_PATH outside web root)
-- [ ] T144 Add database file permission check script in backend/src/scripts/checkPermissions.js
-- [ ] T145 Implement error sanitization in errorHandler.js (never expose database errors to client)
-- [ ] T146 Add request logging with sanitized data in logger.js
-- [ ] T147 Document security configuration in backend/SECURITY.md
+- [X] T138 [P] Add parameterized query validation to all models in backend/src/models/ (SQL injection prevention)
+- [X] T139 [P] Implement XSS sanitization middleware in backend/src/middleware/sanitizer.js
+- [X] T140 [P] Add CSRF protection middleware in backend/src/middleware/csrf.js
+- [X] T141 [P] Implement rate limiting middleware in backend/src/middleware/rateLimiter.js (100 req/min per IP)
+- [X] T142 [P] Add input length validation in backend/src/middleware/validator.js (Name 100, Description 500, etc.)
+- [X] T143 Create .env file configuration guide in README.md (DB_PATH outside web root)
+- [X] T144 Add database file permission check script in backend/src/scripts/checkPermissions.js
+- [X] T145 Implement error sanitization in errorHandler.js (never expose database errors to client)
+- [X] T146 Add request logging with sanitized data in logger.js
+- [X] T147 Document security configuration in backend/SECURITY.md
 
 ### Verification Checkpoint - Security
 
-- [ ] T148 **VERIFY**: Test SQL injection attempts and confirm parameterized queries prevent exploitation
-- [ ] T149 **VERIFY**: Submit XSS payload in item name/description and confirm sanitization
-- [ ] T150 **VERIFY**: Exceed rate limit and confirm 429 Too Many Requests response
-- [ ] T151 **VERIFY**: Submit oversized inputs and confirm validation rejects them
-- [ ] T152 **VERIFY**: Cause database error and confirm client receives generic error (no SQL details)
-- [ ] T153 **VERIFY**: Database file is stored outside web root with restricted permissions
+- [X] T148 **VERIFY**: Test SQL injection attempts and confirm parameterized queries prevent exploitation
+- [X] T149 **VERIFY**: Submit XSS payload in item name/description and confirm sanitization
+- [X] T150 **VERIFY**: Exceed rate limit and confirm 429 Too Many Requests response
+- [X] T151 **VERIFY**: Submit oversized inputs and confirm validation rejects them
+- [X] T152 **VERIFY**: Cause database error and confirm client receives generic error (no SQL details)
+- [X] T153 **VERIFY**: Database file is stored outside web root with restricted permissions
 
 ---
 
