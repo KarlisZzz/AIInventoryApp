@@ -92,6 +92,10 @@ app.use('/api/v1/users', userRoutes);
 const lendingRoutes = require('./routes/lending');
 app.use('/api/v1/lending', lendingRoutes);
 
+// Dashboard routes (T122 - User Story 5)
+const dashboardRoutes = require('./routes/dashboard');
+app.use('/api/v1/dashboard', dashboardRoutes);
+
 // ============================================================================
 // Error Handling
 // ============================================================================

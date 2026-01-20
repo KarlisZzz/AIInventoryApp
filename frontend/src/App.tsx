@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
-import Dashboard from './pages/Dashboard';
+import DashboardPage from './pages/DashboardPage';
 import InventoryPage from './pages/InventoryPage';
 import ItemDetail from './pages/ItemDetail';
 
@@ -11,9 +11,11 @@ import ItemDetail from './pages/ItemDetail';
  * Wraps app in ErrorBoundary for global error handling
  * 
  * Routes:
- * - / : Dashboard (summary and quick actions)
+ * - / : Dashboard (summary and quick actions) - User Story 5
  * - /inventory : Inventory list with search and filters
  * - /inventory/:itemId : Item detail page with lending history
+ * 
+ * @see T130
  */
 function App() {
   return (
@@ -21,7 +23,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<Dashboard />} />
+            <Route index element={<DashboardPage />} />
             <Route path="inventory" element={<InventoryPage />} />
             <Route path="inventory/:itemId" element={<ItemDetail />} />
             

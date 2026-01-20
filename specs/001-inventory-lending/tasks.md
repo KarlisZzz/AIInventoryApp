@@ -262,31 +262,31 @@
 
 ### Backend - User Story 5
 
-- [ ] T119 [US5] Implement getCurrentlyLentItems method in backend/src/services/itemService.js (query Items with status "Lent")
-- [ ] T120 [US5] Add getDashboardData method in backend/src/controllers/itemController.js (items currently out + all items)
-- [ ] T121 [US5] Create dashboard route in backend/src/routes/dashboard.js (GET /dashboard) with /api/v1/ prefix
-- [ ] T122 [US5] Register dashboard route in backend/src/app.js
+- [X] T119 [US5] Implement getCurrentlyLentItems method in backend/src/services/itemService.js (query Items with status "Lent")
+- [X] T120 [US5] Add getDashboardData method in backend/src/controllers/itemController.js (items currently out + all items)
+- [X] T121 [US5] Create dashboard route in backend/src/routes/dashboard.js (GET /dashboard) with /api/v1/ prefix
+- [X] T122 [US5] Register dashboard route in backend/src/app.js
 
 ### Frontend - User Story 5
 
-- [ ] T123 [P] [US5] Create dashboard API service in frontend/src/services/dashboardService.js
-- [ ] T124 [P] [US5] Create CurrentlyOutSection component in frontend/src/components/CurrentlyOutSection.jsx
-- [ ] T125 [P] [US5] Create LentItemCard component in frontend/src/components/LentItemCard.jsx (shows borrower and date)
-- [ ] T126 [US5] Create DashboardPage in frontend/src/pages/DashboardPage.jsx (main dashboard layout)
-- [ ] T127 [US5] Integrate SearchBar and ItemList components into DashboardPage.jsx
-- [ ] T128 [US5] Add real-time dashboard updates after lend/return operations in DashboardPage.jsx
-- [ ] T129 [US5] Handle empty "Currently Out" case in CurrentlyOutSection.jsx (display "No items currently lent")
-- [ ] T130 [US5] Add route for / (root) pointing to DashboardPage in frontend/src/App.jsx
-- [ ] T131 [US5] Create navigation component in frontend/src/components/Navigation.jsx (links to Dashboard and Inventory)
+- [X] T123 [P] [US5] Create dashboard API service in frontend/src/services/dashboardService.js
+- [X] T124 [P] [US5] Create CurrentlyOutSection component in frontend/src/components/CurrentlyOutSection.jsx
+- [X] T125 [P] [US5] Create LentItemCard component in frontend/src/components/LentItemCard.jsx (shows borrower and date)
+- [X] T126 [US5] Create DashboardPage in frontend/src/pages/DashboardPage.jsx (main dashboard layout)
+- [X] T127 [US5] Integrate SearchBar and ItemList components into DashboardPage.jsx
+- [X] T128 [US5] Add real-time dashboard updates after lend/return operations in DashboardPage.jsx
+- [X] T129 [US5] Handle empty "Currently Out" case in CurrentlyOutSection.jsx (display "No items currently lent")
+- [X] T130 [US5] Add route for / (root) pointing to DashboardPage in frontend/src/App.jsx
+- [X] T131 [US5] Create navigation component in frontend/src/components/Navigation.jsx (links to Dashboard and Inventory)
 
 ### Verification Checkpoint - User Story 5
 
-- [ ] T132 [US5] **VERIFY**: Dashboard loads within 2 seconds as per SC-004
-- [ ] T133 [US5] **VERIFY**: "Items Currently Out" section displays all Lent items with borrower names and DateLent
-- [ ] T134 [US5] **VERIFY**: Inventory table shows all items with correct columns (Name, Category, Status, Actions)
-- [ ] T135 [US5] **VERIFY**: Search box filters inventory in real-time (under 1 second per SC-005)
-- [ ] T136 [US5] **VERIFY**: Dashboard updates immediately after lending/returning an item
-- [ ] T137 [US5] **VERIFY**: When no items are lent, "Currently Out" section shows "No items currently lent"
+- [X] T132 [US5] **VERIFY**: Dashboard loads within 2 seconds as per SC-004
+- [X] T133 [US5] **VERIFY**: "Items Currently Out" section displays all Lent items with borrower names and DateLent
+- [X] T134 [US5] **VERIFY**: Inventory table shows all items with correct columns (Name, Category, Status, Actions)
+- [X] T135 [US5] **VERIFY**: Search box filters inventory in real-time (under 1 second per SC-005)
+- [X] T136 [US5] **VERIFY**: Dashboard updates immediately after lending/returning an item
+- [X] T137 [US5] **VERIFY**: When no items are lent, "Currently Out" section shows "No items currently lent"
 
 ### Performance Testing (FR-035 to FR-038)
 

@@ -282,6 +282,58 @@ async function getCategories(req, res, next) {
   }
 }
 
+/**
+ * Get dashboard data
+ * GET /api/v1/dashboard
+ * 
+ * Returns items currently out and all items for dashboard overview.
+ * 
+ * @param {Request} req - Express request
+ * @param {Response} res - Express response
+ * @param {Function} next - Express next middleware
+ * 
+ * @see specs/001-inventory-lending/spec.md (User Story 5)
+ */
+async function getDashboardData(req, res, next) {
+  try {
+    // Get items currently lent out (T119)
+    const currentlyOut = await itemService.getCurrentlyLentItems();
+    
+    // Get all items with optional filtering
+    const { status, category, search } = req.query;
+    const filters = {};
+    
+    if (status) {
+      filters.status = status;
+    }
+    
+    if (category) {
+      filters.category = category;
+    }
+    
+    if (search) {
+      filters.search = search;
+    }
+    
+    const allItems = await itemService.getAllItems(filters);
+    
+    return res.success(
+      {
+        currentlyOut,
+        allItems,
+        stats: {
+          totalItems: allItems.length,
+          itemsOut: currentlyOut.length,
+          itemsAvailable: allItems.filter(item => item.status === 'Available').length,
+        },
+      },
+      'Dashboard data retrieved successfully'
+    );
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   createItem,
   getAllItems,
@@ -290,4 +342,5 @@ module.exports = {
   deleteItem,
   searchItems,
   getCategories,
+  getDashboardData,
 };
