@@ -116,8 +116,38 @@ export async function getActiveLendings(): Promise<LendingLog[]> {
   return response.data;
 }
 
+/**
+ * Request payload for returning an item
+ */
+export interface ReturnItemRequest {
+  itemId: string;
+  returnConditionNotes?: string;
+}
+
+/**
+ * Response from returning an item
+ */
+export interface ReturnItemResponse {
+  item: Item;
+  log: LendingLog;
+}
+
+/**
+ * Return a lent item (User Story 3)
+ * 
+ * POST /api/v1/lending/return
+ * 
+ * @param request - Item ID and optional return condition notes
+ * @returns Promise with updated item and lending log
+ */
+export async function returnItem(request: ReturnItemRequest): Promise<ReturnItemResponse> {
+  const response = await apiClient.post<ReturnItemResponse>('/lending/return', request);
+  return response.data;
+}
+
 export default {
   lendItem,
+  returnItem,
   getItemLendingHistory,
   getCurrentlyLentItems,
   getActiveLendings,

@@ -16,13 +16,14 @@ interface ItemListProps {
   onEdit: (item: Item) => void;
   onDelete: (itemId: string) => Promise<void>;
   onLend?: (item: Item) => void;
+  onReturn?: (item: Item) => void;
   isLoading?: boolean;
 }
 
 type SortField = 'name' | 'category' | 'status' | 'createdAt';
 type SortOrder = 'asc' | 'desc';
 
-export default function ItemList({ items, onEdit, onDelete, onLend, isLoading = false }: ItemListProps) {
+export default function ItemList({ items, onEdit, onDelete, onLend, onReturn, isLoading = false }: ItemListProps) {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
@@ -144,6 +145,7 @@ export default function ItemList({ items, onEdit, onDelete, onLend, isLoading = 
             onEdit={onEdit}
             onDelete={onDelete}
             onLend={onLend}
+            onReturn={onReturn}
           />
         ))}
       </div>

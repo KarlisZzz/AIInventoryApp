@@ -159,8 +159,72 @@ async function getActiveLendings(req, res, next) {
   }
 }
 
+/**
+ * Return a lent item
+ * 
+ * POST /api/v1/lending/return
+ * 
+ * Request body:
+ * {
+ *   "itemId": "uuid",
+ *   "returnConditionNotes": "optional string"
+ * }
+ * 
+ * Response (200):
+ * {
+ *   "data": {
+ *     "item": { ... },
+ *     "log": { ... }
+ *   },
+ *   "error": null,
+ *   "message": "Item returned successfully"
+ * }
+ * 
+ * @param {Object} req - Express request
+ * @param {Object} res - Express response (with envelope helpers)
+ * @param {Function} next - Express next middleware
+ */
+async function returnItem(req, res, next) {
+  try {
+    const fs = require('fs');
+    fs.appendFileSync('debug-return.log', `[controller PRE] req.body: ${JSON.stringify(req.body)}\n`);
+    
+    const { itemId, returnConditionNotes } = req.body;
+
+    fs.appendFileSync('debug-return.log', `[controller POST] itemId: ${itemId}, returnConditionNotes: ${JSON.stringify(returnConditionNotes)}, typeof: ${typeof returnConditionNotes}\n`);
+
+    // Validate required fields
+    if (!itemId) {
+      return res.error('VALIDATION_ERROR', 'Item ID is required', 400);
+    }
+
+    // Call service
+    const result = await lendingService.returnItem(itemId, returnConditionNotes);
+
+    return res.success(result, 'Item returned successfully');
+
+  } catch (error) {
+    // Handle known validation errors
+    if (error.message === 'Item not found') {
+      return res.error('ITEM_NOT_FOUND', 'Item not found', 404);
+    }
+
+    if (error.message.includes('Cannot return')) {
+      return res.error('RETURN_FORBIDDEN', error.message, 400);
+    }
+
+    if (error.message.includes('No active lending record')) {
+      return res.error('NO_ACTIVE_LENDING', error.message, 400);
+    }
+
+    // Pass unexpected errors to global error handler
+    next(error);
+  }
+}
+
 module.exports = {
   lendItem,
+  returnItem,
   getItemHistory,
   getCurrentLendings,
   getActiveLendings,

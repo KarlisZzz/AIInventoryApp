@@ -22,6 +22,16 @@ const lendingController = require('../controllers/lendingController');
 router.post('/lend', lendingController.lendItem);
 
 /**
+ * POST /api/v1/lending/return
+ * 
+ * Return a lent item (atomic operation)
+ * 
+ * Body: { itemId, returnConditionNotes? }
+ * Response: { data: { item, log }, error, message }
+ */
+router.post('/return', lendingController.returnItem);
+
+/**
  * GET /api/v1/lending/history/:itemId
  * 
  * Get lending history for a specific item

@@ -188,31 +188,31 @@
 
 ### Backend - User Story 3
 
-- [ ] T083 [US3] Implement atomic return operation in backend/src/services/lendingService.js (returnItem method)
-- [ ] T084 [US3] Add transaction logic for return in lendingService.js (BEGIN, update Item status, update LendingLog, COMMIT)
-- [ ] T085 [US3] Add validation to prevent returning items with status "Available" or "Maintenance" in lendingService.js
-- [ ] T086 [US3] Add rollback logic for return transaction failures in lendingService.js
-- [ ] T087 [US3] Add returnItem method in backend/src/controllers/lendingController.js
-- [ ] T088 [US3] Create return route in backend/src/routes/lending.js (POST /return) with /api/v1/ prefix
+- [X] T083 [US3] Implement atomic return operation in backend/src/services/lendingService.js (returnItem method)
+- [X] T084 [US3] Add transaction logic for return in lendingService.js (BEGIN, update Item status, update LendingLog, COMMIT)
+- [X] T085 [US3] Add validation to prevent returning items with status "Available" or "Maintenance" in lendingService.js
+- [X] T086 [US3] Add rollback logic for return transaction failures in lendingService.js
+- [X] T087 [US3] Add returnItem method in backend/src/controllers/lendingController.js
+- [X] T088 [US3] Create return route in backend/src/routes/lending.js (POST /return) with /api/v1/ prefix
 
 ### Frontend - User Story 3
 
-- [ ] T089 [P] [US3] Add returnItem method to frontend/src/services/lendingService.js
-- [ ] T090 [P] [US3] Create ReturnDialog component in frontend/src/components/ReturnDialog.jsx (modal with condition notes)
-- [ ] T091 [US3] Add "Return" button to ItemCard.jsx (only visible for Lent items)
-- [ ] T092 [US3] Implement return operation in ReturnDialog.jsx (call API, handle success/error)
-- [ ] T093 [US3] Add return condition notes field in ReturnDialog.jsx (optional textarea)
-- [ ] T094 [US3] Update InventoryPage.jsx to refresh after return operation
-- [ ] T095 [US3] Add error handling for invalid return attempts in ReturnDialog.jsx
+- [X] T089 [P] [US3] Add returnItem method to frontend/src/services/lendingService.js
+- [X] T090 [P] [US3] Create ReturnDialog component in frontend/src/components/ReturnDialog.jsx (modal with condition notes)
+- [X] T091 [US3] Add "Return" button to ItemCard.jsx (only visible for Lent items)
+- [X] T092 [US3] Implement return operation in ReturnDialog.jsx (call API, handle success/error)
+- [X] T093 [US3] Add return condition notes field in ReturnDialog.jsx (optional textarea)
+- [X] T094 [US3] Update InventoryPage.jsx to refresh after return operation
+- [X] T095 [US3] Add error handling for invalid return attempts in ReturnDialog.jsx
 
 ### Verification Checkpoint - User Story 3
 
-- [ ] T096 [US3] **VERIFY**: Return a Lent item and confirm status changes to "Available" in database
-- [ ] T097 [US3] **VERIFY**: Confirm LendingLog record is updated with DateReturned (current timestamp)
-- [ ] T098 [US3] **VERIFY**: Attempt to return an Available item and confirm error message is displayed
-- [ ] T099 [US3] **VERIFY**: Simulate database error during return and confirm rollback (no partial updates)
-- [ ] T100 [US3] **VERIFY**: Add return condition notes and confirm they're saved in LendingLog
-- [ ] T101 [US3] **VERIFY**: Return item is immediately available for lending again
+- [X] T096 [US3] **VERIFY**: Return a Lent item and confirm status changes to "Available" in database
+- [X] T097 [US3] **VERIFY**: Confirm LendingLog record is updated with DateReturned (current timestamp)
+- [X] T098 [US3] **VERIFY**: Attempt to return an Available item and confirm error message is displayed
+- [X] T099 [US3] **VERIFY**: Simulate database error during return and confirm rollback (no partial updates)
+- [X] T100 [US3] **VERIFY**: Add return condition notes and confirm they're saved in LendingLog
+- [X] T101 [US3] **VERIFY**: Return item is immediately available for lending again
 
 **Checkpoint**: User Story 3 complete - Full lending cycle (lend → return) is functional
 

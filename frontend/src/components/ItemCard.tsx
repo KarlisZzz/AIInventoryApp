@@ -15,9 +15,10 @@ interface ItemCardProps {
   onEdit: (item: Item) => void;
   onDelete: (itemId: string) => Promise<void>;
   onLend?: (item: Item) => void;
+  onReturn?: (item: Item) => void;
 }
 
-export default function ItemCard({ item, onEdit, onDelete, onLend }: ItemCardProps) {
+export default function ItemCard({ item, onEdit, onDelete, onLend, onReturn }: ItemCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -92,6 +93,19 @@ export default function ItemCard({ item, onEdit, onDelete, onLend }: ItemCardPro
               aria-label={`Lend ${item.name}`}
             >
               Lend
+            </button>
+          )}
+          
+          {/* Return button - only show for Lent items (T091) */}
+          {item.status === 'Lent' && onReturn && (
+            <button
+              onClick={() => onReturn(item)}
+              className="flex-1 px-3 py-2 text-sm bg-orange-500/20 text-orange-400 rounded-lg
+                         hover:bg-orange-500/30 focus:outline-none focus:ring-2 focus:ring-orange-500
+                         transition-colors"
+              aria-label={`Return ${item.name}`}
+            >
+              Return
             </button>
           )}
           

@@ -111,6 +111,111 @@ async function lendItem(itemId, userId, conditionNotes = null) {
 }
 
 /**
+ * Return a lent item (atomic operation)
+ * 
+ * This operation must be atomic per FR-031:
+ * 1. Validate item exists and is Lent
+ * 2. Find the active lending log (dateReturned = NULL)
+ * 3. Update item status to "Available"
+ * 4. Update lending log with dateReturned (FR-013)
+ * 
+ * All operations happen within a transaction that commits only if all succeed.
+ * 
+ * @param {string} itemId - UUID of the item to return
+ * @param {string} [returnConditionNotes] - Optional notes on item condition at return
+ * @returns {Promise<{item: Item, log: LendingLog}>} Updated item and lending log
+ * @throws {Error} If validation fails or transaction cannot complete
+ */
+async function returnItem(itemId, returnConditionNotes = null) {
+  // Input validation
+  if (!itemId) {
+    throw new Error('Item ID is required');
+  }
+
+  const fs = require('fs');
+  fs.appendFileSync('debug-return.log', `[service] itemId: ${itemId}, returnConditionNotes: ${JSON.stringify(returnConditionNotes)}, typeof: ${typeof returnConditionNotes}, truthy: ${!!returnConditionNotes}\n`);
+
+  const transaction = await sequelize.transaction();
+
+  try {
+    // 1. Fetch and validate item
+    const item = await Item.findByPk(itemId, { transaction });
+    
+    if (!item) {
+      await transaction.rollback();
+      throw new Error('Item not found');
+    }
+
+    // FR-014: Validate item status - only "Lent" items can be returned
+    if (item.status === 'Available') {
+      await transaction.rollback();
+      throw new Error('Cannot return item that is not lent out');
+    }
+
+    if (item.status === 'Maintenance') {
+      await transaction.rollback();
+      throw new Error('Cannot return item that is under maintenance');
+    }
+
+    // 2. Find the active lending log (dateReturned = NULL)
+    const activeLendingLog = await LendingLog.findOne({
+      where: {
+        itemId: item.id,
+        dateReturned: null,
+      },
+      transaction,
+    });
+
+    if (!activeLendingLog) {
+      await transaction.rollback();
+      throw new Error('No active lending record found for this item');
+    }
+
+    // 3. Update item status to "Available" (FR-012)
+    await item.update({ status: 'Available' }, { transaction });
+
+    // 4. Update lending log with dateReturned (FR-013: Current timestamp)
+    activeLendingLog.dateReturned = new Date();
+    
+    // Update condition notes if provided (preserves existing notes if not provided)
+    if (returnConditionNotes) {
+      activeLendingLog.conditionNotes = returnConditionNotes;
+    }
+    
+    await activeLendingLog.save({ transaction });
+
+    // Reload to get the updated values
+    await activeLendingLog.reload({ transaction });
+
+    // Commit transaction - all operations successful
+    await transaction.commit();
+
+    return {
+      item,
+      log: activeLendingLog,
+    };
+
+  } catch (error) {
+    // Rollback on any error (FR-031: Transaction integrity)
+    if (!transaction.finished || transaction.finished === 'rollback') {
+      // Transaction already rolled back in validation checks
+    } else if (transaction.finished !== 'commit') {
+      await transaction.rollback();
+    }
+
+    // Re-throw known validation errors
+    if (error.message.includes('not found') || 
+        error.message.includes('Cannot return') ||
+        error.message.includes('required')) {
+      throw error;
+    }
+
+    // Wrap unexpected errors
+    throw new Error(`Failed to return item: ${error.message}`);
+  }
+}
+
+/**
  * Get all lending logs for a specific item (FR-020)
  * 
  * Returns lending history in chronological order, most recent first (FR-021).
@@ -187,6 +292,7 @@ async function getActiveLendings() {
 
 module.exports = {
   lendItem,
+  returnItem,
   getItemLendingHistory,
   getCurrentlyLentItems,
   getActiveLendings,

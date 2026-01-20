@@ -15,6 +15,7 @@ import SearchBar from '../components/SearchBar';
 import ItemForm from '../components/ItemForm';
 import ItemList from '../components/ItemList';
 import LendDialog from '../components/LendDialog';
+import ReturnDialog from '../components/ReturnDialog';
 import {
   getAllItems,
   createItem,
@@ -38,6 +39,8 @@ export default function InventoryPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [lendingItem, setLendingItem] = useState<Item | null>(null);
   const [showLendDialog, setShowLendDialog] = useState(false);
+  const [returningItem, setReturningItem] = useState<Item | null>(null);
+  const [showReturnDialog, setShowReturnDialog] = useState(false);
 
   // Load items on mount
   useEffect(() => {
@@ -160,6 +163,23 @@ export default function InventoryPage() {
     setLendingItem(null);
   };
 
+  const handleReturn = (item: Item) => {
+    setReturningItem(item);
+    setShowReturnDialog(true);
+  };
+
+  const handleReturnSuccess = async () => {
+    // Refresh items list after successful return (T094)
+    await loadItems();
+    setShowReturnDialog(false);
+    setReturningItem(null);
+  };
+
+  const handleReturnClose = () => {
+    setShowReturnDialog(false);
+    setReturningItem(null);
+  };
+
   // Get unique categories for filter
   const uniqueCategories = Array.from(new Set(items.map((item) => item.category))).sort();
 
@@ -269,6 +289,7 @@ export default function InventoryPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onLend={handleLend}
+        onReturn={handleReturn}
         isLoading={isLoading}
       />
 
@@ -280,6 +301,17 @@ export default function InventoryPage() {
           isOpen={showLendDialog}
           onClose={handleLendClose}
           onSuccess={handleLendSuccess}
+        />
+      )}
+
+      {/* Return Dialog (T090, T092, T093, T094, T095) */}
+      {showReturnDialog && returningItem && (
+        <ReturnDialog
+          itemId={returningItem.id}
+          itemName={returningItem.name}
+          isOpen={showReturnDialog}
+          onClose={handleReturnClose}
+          onSuccess={handleReturnSuccess}
         />
       )}
     </div>
