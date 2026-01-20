@@ -16,6 +16,7 @@ import ItemForm from '../components/ItemForm';
 import ItemList from '../components/ItemList';
 import LendDialog from '../components/LendDialog';
 import ReturnDialog from '../components/ReturnDialog';
+import HistoryDialog from '../components/HistoryDialog';
 import {
   getAllItems,
   createItem,
@@ -41,6 +42,8 @@ export default function InventoryPage() {
   const [showLendDialog, setShowLendDialog] = useState(false);
   const [returningItem, setReturningItem] = useState<Item | null>(null);
   const [showReturnDialog, setShowReturnDialog] = useState(false);
+  const [historyItem, setHistoryItem] = useState<Item | null>(null);
+  const [showHistoryDialog, setShowHistoryDialog] = useState(false);
 
   // Load items on mount
   useEffect(() => {
@@ -180,6 +183,16 @@ export default function InventoryPage() {
     setReturningItem(null);
   };
 
+  const handleViewHistory = (item: Item) => {
+    setHistoryItem(item);
+    setShowHistoryDialog(true);
+  };
+
+  const handleHistoryClose = () => {
+    setShowHistoryDialog(false);
+    setHistoryItem(null);
+  };
+
   // Get unique categories for filter
   const uniqueCategories = Array.from(new Set(items.map((item) => item.category))).sort();
 
@@ -290,6 +303,7 @@ export default function InventoryPage() {
         onDelete={handleDelete}
         onLend={handleLend}
         onReturn={handleReturn}
+        onViewHistory={handleViewHistory}
         isLoading={isLoading}
       />
 
@@ -312,6 +326,15 @@ export default function InventoryPage() {
           isOpen={showReturnDialog}
           onClose={handleReturnClose}
           onSuccess={handleReturnSuccess}
+        />
+      )}
+
+      {/* History Dialog (T107, T111, T112, T113) */}
+      {showHistoryDialog && historyItem && (
+        <HistoryDialog
+          itemId={historyItem.id}
+          itemName={historyItem.name}
+          onClose={handleHistoryClose}
         />
       )}
     </div>

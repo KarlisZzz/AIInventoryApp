@@ -16,9 +16,10 @@ interface ItemCardProps {
   onDelete: (itemId: string) => Promise<void>;
   onLend?: (item: Item) => void;
   onReturn?: (item: Item) => void;
+  onViewHistory?: (item: Item) => void;
 }
 
-export default function ItemCard({ item, onEdit, onDelete, onLend, onReturn }: ItemCardProps) {
+export default function ItemCard({ item, onEdit, onDelete, onLend, onReturn, onViewHistory }: ItemCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -106,6 +107,19 @@ export default function ItemCard({ item, onEdit, onDelete, onLend, onReturn }: I
               aria-label={`Return ${item.name}`}
             >
               Return
+            </button>
+          )}
+          
+          {/* View History button (T110) */}
+          {onViewHistory && (
+            <button
+              onClick={() => onViewHistory(item)}
+              className="flex-1 px-3 py-2 text-sm bg-purple-500/20 text-purple-400 rounded-lg
+                         hover:bg-purple-500/30 focus:outline-none focus:ring-2 focus:ring-purple-500
+                         transition-colors"
+              aria-label={`View history for ${item.name}`}
+            >
+              History
             </button>
           )}
           

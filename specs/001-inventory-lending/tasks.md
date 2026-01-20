@@ -226,29 +226,29 @@
 
 ### Backend - User Story 4
 
-- [ ] T102 [US4] Implement getHistoryByItemId method in backend/src/models/LendingLog.js (query with denormalized BorrowerName field per FR-028)
-- [ ] T103 [US4] Create getItemHistory method in backend/src/services/lendingService.js (with date filtering)
-- [ ] T104 [US4] Add getHistory method in backend/src/controllers/lendingController.js
-- [ ] T105 [US4] Create history route in backend/src/routes/lending.js (GET /history/:itemId) with /api/v1/ prefix
+- [X] T102 [US4] Implement getHistoryByItemId method in backend/src/models/LendingLog.js (query with denormalized BorrowerName field per FR-028)
+- [X] T103 [US4] Create getItemHistory method in backend/src/services/lendingService.js (with date filtering)
+- [X] T104 [US4] Add getHistory method in backend/src/controllers/lendingController.js
+- [X] T105 [US4] Create history route in backend/src/routes/lending.js (GET /history/:itemId) with /api/v1/ prefix
 
 ### Frontend - User Story 4
 
-- [ ] T106 [P] [US4] Add getItemHistory method to frontend/src/services/lendingService.js
-- [ ] T107 [P] [US4] Create HistoryDialog component in frontend/src/components/HistoryDialog.jsx (modal with transaction list)
-- [ ] T108 [P] [US4] Create HistoryTable component in frontend/src/components/HistoryTable.jsx (formatted transaction display)
-- [ ] T109 [P] [US4] Create DateRangeFilter component in frontend/src/components/DateRangeFilter.jsx (optional date filtering)
-- [ ] T110 [US4] Add "View History" button to ItemCard.jsx
-- [ ] T111 [US4] Implement history loading in HistoryDialog.jsx (call API, display results)
-- [ ] T112 [US4] Add date range filtering in HistoryDialog.jsx
-- [ ] T113 [US4] Handle empty history case in HistoryDialog.jsx (display "No lending history available")
+- [X] T106 [P] [US4] Add getItemHistory method to frontend/src/services/lendingService.js
+- [X] T107 [P] [US4] Create HistoryDialog component in frontend/src/components/HistoryDialog.jsx (modal with transaction list)
+- [X] T108 [P] [US4] Create HistoryTable component in frontend/src/components/HistoryTable.jsx (formatted transaction display)
+- [X] T109 [P] [US4] Create DateRangeFilter component in frontend/src/components/DateRangeFilter.jsx (optional date filtering)
+- [X] T110 [US4] Add "View History" button to ItemCard.jsx
+- [X] T111 [US4] Implement history loading in HistoryDialog.jsx (call API, display results)
+- [X] T112 [US4] Add date range filtering in HistoryDialog.jsx
+- [X] T113 [US4] Handle empty history case in HistoryDialog.jsx (display "No lending history available")
 
 ### Verification Checkpoint - User Story 4
 
-- [ ] T114 [US4] **VERIFY**: View history for item with multiple transactions and confirm chronological order (newest first)
-- [ ] T115 [US4] **VERIFY**: Confirm all fields displayed correctly (BorrowerName from denormalized field, DateLent, DateReturned, ConditionNotes per FR-028)
-- [ ] T116 [US4] **VERIFY**: View history for never-lent item and confirm "No lending history" message
-- [ ] T117 [US4] **VERIFY**: Filter history by date range and confirm only matching transactions shown
-- [ ] T118 [US4] **VERIFY**: Verify borrower names displayed from denormalized BorrowerName field (audit trail preserved even if user data changes)
+- [X] T114 [US4] **VERIFY**: View history for item with multiple transactions and confirm chronological order (newest first)
+- [X] T115 [US4] **VERIFY**: Confirm all fields displayed correctly (BorrowerName from denormalized field, DateLent, DateReturned, ConditionNotes per FR-028)
+- [X] T116 [US4] **VERIFY**: View history for never-lent item and confirm "No lending history" message
+- [X] T117 [US4] **VERIFY**: Filter history by date range and confirm only matching transactions shown
+- [X] T118 [US4] **VERIFY**: Verify borrower names displayed from denormalized BorrowerName field (audit trail preserved even if user data changes)
 
 **Checkpoint**: User Story 4 complete - Full audit trail available for all items
 
