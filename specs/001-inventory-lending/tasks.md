@@ -143,38 +143,38 @@
 
 ### Backend - User Story 2
 
-- [ ] T058 [P] [US2] Create User model class in backend/src/models/User.js (read-only for this feature)
-- [ ] T059 [P] [US2] Create LendingLog model class in backend/src/models/LendingLog.js (create, update, query methods; includes BorrowerName, BorrowerEmail denormalized fields)
-- [ ] T060 [US2] Create LendingService in backend/src/services/lendingService.js (lend operation with transaction)
-- [ ] T061 [US2] Implement atomic lend operation in lendingService.js (BEGIN TRANSACTION, update Item, insert LendingLog with denormalized BorrowerName/BorrowerEmail from User lookup per FR-016/FR-019, COMMIT)
-- [ ] T062 [US2] Add validation to prevent lending items with status "Lent" or "Maintenance" in lendingService.js
-- [ ] T063 [US2] Add rollback logic in lendingService.js for transaction failures
-- [ ] T064 [US2] Create LendingController in backend/src/controllers/lendingController.js (lendItem method)
-- [ ] T065 [US2] Create lending routes in backend/src/routes/lending.js (POST /lend) with /api/v1/ prefix
-- [ ] T066 [US2] Create user routes in backend/src/routes/users.js (GET / for user selection only; user CRUD out of scope per FR-015) with /api/v1/users prefix
-- [ ] T067 [US2] Register lending and user routes in backend/src/app.js
+- [X] T058 [P] [US2] Create User model class in backend/src/models/User.js (read-only for this feature)
+- [X] T059 [P] [US2] Create LendingLog model class in backend/src/models/LendingLog.js (create, update, query methods; includes BorrowerName, BorrowerEmail denormalized fields)
+- [X] T060 [US2] Create LendingService in backend/src/services/lendingService.js (lend operation with transaction)
+- [X] T061 [US2] Implement atomic lend operation in lendingService.js (BEGIN TRANSACTION, update Item, insert LendingLog with denormalized BorrowerName/BorrowerEmail from User lookup per FR-016/FR-019, COMMIT)
+- [X] T062 [US2] Add validation to prevent lending items with status "Lent" or "Maintenance" in lendingService.js
+- [X] T063 [US2] Add rollback logic in lendingService.js for transaction failures
+- [X] T064 [US2] Create LendingController in backend/src/controllers/lendingController.js (lendItem method)
+- [X] T065 [US2] Create lending routes in backend/src/routes/lending.js (POST /lend) with /api/v1/ prefix
+- [X] T066 [US2] Create user routes in backend/src/routes/users.js (GET / for user selection only; user CRUD out of scope per FR-015) with /api/v1/users prefix
+- [X] T067 [US2] Register lending and user routes in backend/src/app.js
 
 ### Frontend - User Story 2
 
-- [ ] T068 [P] [US2] Create lending API service in frontend/src/services/lendingService.js (lendItem API call)
-- [ ] T069 [P] [US2] Create user API service in frontend/src/services/userService.js (getUsers API call)
-- [ ] T070 [P] [US2] Create LendDialog component in frontend/src/components/LendDialog.jsx (modal with user selection)
-- [ ] T071 [P] [US2] Create UserSelect component in frontend/src/components/UserSelect.jsx (searchable dropdown)
-- [ ] T072 [US2] Add "Lend" button to ItemCard.jsx (only visible for Available items)
-- [ ] T073 [US2] Implement lend operation in LendDialog.jsx (call API, handle success/error)
-- [ ] T074 [US2] Add condition notes field in LendDialog.jsx (optional textarea)
-- [ ] T075 [US2] Update InventoryPage.jsx to refresh after lending operation
-- [ ] T076 [US2] Add error handling for concurrent lending attempts in LendDialog.jsx
+- [X] T068 [P] [US2] Create lending API service in frontend/src/services/lendingService.js (lendItem API call)
+- [X] T069 [P] [US2] Create user API service in frontend/src/services/userService.js (getUsers API call)
+- [X] T070 [P] [US2] Create LendDialog component in frontend/src/components/LendDialog.jsx (modal with user selection)
+- [X] T071 [P] [US2] Create UserSelect component in frontend/src/components/UserSelect.jsx (searchable dropdown)
+- [X] T072 [US2] Add "Lend" button to ItemCard.jsx (only visible for Available items)
+- [X] T073 [US2] Implement lend operation in LendDialog.jsx (call API, handle success/error)
+- [X] T074 [US2] Add condition notes field in LendDialog.jsx (optional textarea)
+- [X] T075 [US2] Update InventoryPage.jsx to refresh after lending operation
+- [X] T076 [US2] Add error handling for concurrent lending attempts in LendDialog.jsx
 
 ### Verification Checkpoint - User Story 2
 
-- [ ] T077 [US2] **VERIFY**: Lend an Available item and confirm status changes to "Lent" in database
-- [ ] T078 [US2] **VERIFY**: Confirm LendingLog record is created with correct Item ID, User ID, and DateLent
-- [ ] T079 [US2] **VERIFY**: Attempt to lend an already-Lent item and confirm error message is displayed
-- [ ] T080 [US2] **VERIFY**: Simulate database error during lend and confirm rollback (no partial updates)
-- [ ] T081 [US2] **VERIFY**: Search for user by name/email in UserSelect and confirm filtering works
-- [ ] T082 [US2] **VERIFY**: Add condition notes during lending and confirm they're saved in LendingLog
-- [ ] T082a [US2] **VERIFY**: Lend an item and confirm LendingLog record includes denormalized BorrowerName and BorrowerEmail fields copied from User (FR-016/FR-019 audit preservation)
+- [X] T077 [US2] **VERIFY**: Lend an Available item and confirm status changes to "Lent" in database
+- [X] T078 [US2] **VERIFY**: Confirm LendingLog record is created with correct Item ID, User ID, and DateLent
+- [X] T079 [US2] **VERIFY**: Attempt to lend an already-Lent item and confirm error message is displayed
+- [X] T080 [US2] **VERIFY**: Simulate database error during lend and confirm rollback (no partial updates)
+- [X] T081 [US2] **VERIFY**: Search for user by name/email in UserSelect and confirm filtering works
+- [X] T082 [US2] **VERIFY**: Add condition notes during lending and confirm they're saved in LendingLog
+- [X] T082a [US2] **VERIFY**: Lend an item and confirm LendingLog record includes denormalized BorrowerName and BorrowerEmail fields copied from User (FR-016/FR-019 audit preservation)
 
 **Checkpoint**: User Story 2 complete - Items can be lent with full transactional integrity
 

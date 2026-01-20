@@ -84,6 +84,14 @@ if (config.isDevelopment) {
 const itemRoutes = require('./routes/items');
 app.use('/api/v1/items', itemRoutes);
 
+// User routes (T066 - User Story 2)
+const userRoutes = require('./routes/users');
+app.use('/api/v1/users', userRoutes);
+
+// Lending routes (T065 - User Story 2)
+const lendingRoutes = require('./routes/lending');
+app.use('/api/v1/lending', lendingRoutes);
+
 // ============================================================================
 // Error Handling
 // ============================================================================

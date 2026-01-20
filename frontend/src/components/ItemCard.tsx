@@ -14,9 +14,10 @@ interface ItemCardProps {
   item: Item;
   onEdit: (item: Item) => void;
   onDelete: (itemId: string) => Promise<void>;
+  onLend?: (item: Item) => void;
 }
 
-export default function ItemCard({ item, onEdit, onDelete }: ItemCardProps) {
+export default function ItemCard({ item, onEdit, onDelete, onLend }: ItemCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -81,6 +82,19 @@ export default function ItemCard({ item, onEdit, onDelete }: ItemCardProps) {
 
         {/* Actions */}
         <div className="flex gap-2 pt-3 border-t border-slate-700">
+          {/* Lend button - only show for Available items (T072) */}
+          {item.status === 'Available' && onLend && (
+            <button
+              onClick={() => onLend(item)}
+              className="flex-1 px-3 py-2 text-sm bg-green-500/20 text-green-400 rounded-lg
+                         hover:bg-green-500/30 focus:outline-none focus:ring-2 focus:ring-green-500
+                         transition-colors"
+              aria-label={`Lend ${item.name}`}
+            >
+              Lend
+            </button>
+          )}
+          
           <button
             onClick={() => onEdit(item)}
             className="flex-1 px-3 py-2 text-sm bg-blue-500/20 text-blue-400 rounded-lg

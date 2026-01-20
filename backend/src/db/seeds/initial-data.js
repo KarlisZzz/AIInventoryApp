@@ -12,10 +12,10 @@
  * - Denormalized borrower data in LendingLog (FR-016)
  */
 
-const { sequelize } = require('../config/database');
-const Item = require('../models/Item');
-const User = require('../models/User');
-const LendingLog = require('../models/LendingLog');
+const { sequelize } = require('../../config/database');
+const Item = require('../../models/Item');
+const User = require('../../models/User');
+const LendingLog = require('../../models/LendingLog');
 
 /**
  * Sample Items (10 items across various categories)

@@ -54,6 +54,35 @@ const LendingLog = sequelize.define('LendingLog', {
     comment: 'Reference to the borrower',
   },
   
+  borrowerName: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
+    validate: {
+      notEmpty: {
+        msg: 'Borrower name is required',
+      },
+      len: {
+        args: [1, 100],
+        msg: 'Borrower name must be 1-100 characters',
+      },
+    },
+    comment: 'Denormalized from User.name at lend time for audit trail preservation (FR-016)',
+  },
+  
+  borrowerEmail: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    validate: {
+      isEmail: {
+        msg: 'Borrower email must be valid format',
+      },
+      notEmpty: {
+        msg: 'Borrower email is required',
+      },
+    },
+    comment: 'Denormalized from User.email at lend time for audit trail preservation (FR-016)',
+  },
+  
   dateLent: {
     type: DataTypes.DATE,
     allowNull: false,

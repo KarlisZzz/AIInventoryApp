@@ -14,6 +14,7 @@ import { useState, useEffect, useCallback } from 'react';
 import SearchBar from '../components/SearchBar';
 import ItemForm from '../components/ItemForm';
 import ItemList from '../components/ItemList';
+import LendDialog from '../components/LendDialog';
 import {
   getAllItems,
   createItem,
@@ -35,6 +36,8 @@ export default function InventoryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [lendingItem, setLendingItem] = useState<Item | null>(null);
+  const [showLendDialog, setShowLendDialog] = useState(false);
 
   // Load items on mount
   useEffect(() => {
@@ -138,6 +141,23 @@ export default function InventoryPage() {
   const handleFormCancel = () => {
     setShowForm(false);
     setEditingItem(null);
+  };
+
+  const handleLend = (item: Item) => {
+    setLendingItem(item);
+    setShowLendDialog(true);
+  };
+
+  const handleLendSuccess = async () => {
+    // Refresh items list after successful lending (T075)
+    await loadItems();
+    setShowLendDialog(false);
+    setLendingItem(null);
+  };
+
+  const handleLendClose = () => {
+    setShowLendDialog(false);
+    setLendingItem(null);
   };
 
   // Get unique categories for filter
@@ -248,8 +268,20 @@ export default function InventoryPage() {
         items={filteredItems}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onLend={handleLend}
         isLoading={isLoading}
       />
+
+      {/* Lend Dialog (T070, T073, T074, T075, T076) */}
+      {showLendDialog && lendingItem && (
+        <LendDialog
+          itemId={lendingItem.id}
+          itemName={lendingItem.name}
+          isOpen={showLendDialog}
+          onClose={handleLendClose}
+          onSuccess={handleLendSuccess}
+        />
+      )}
     </div>
   );
 }
