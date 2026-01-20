@@ -290,12 +290,12 @@
 
 ### Performance Testing (FR-035 to FR-038)
 
-- [ ] T137a [P] [US5] Create test dataset generator script in backend/src/scripts/generateTestData.js (500 items, 50 users, 1000 lending logs per FR-036)
-- [ ] T137b [P] [US5] Create performance benchmark suite in backend/tests/performance/ using k6 or custom Node.js script
-- [ ] T137c [US5] Add dashboard load time test (target: <2s per SC-004/FR-035)
-- [ ] T137d [US5] Add search response time test (target: <1s per SC-005/FR-035)
-- [ ] T137e [US5] Add response time logging to itemController and lendingController per FR-037
-- [ ] T137f **VERIFY**: Run performance tests against test dataset and confirm all thresholds met (SC-004, SC-005)
+- [X] T137a [P] [US5] Create test dataset generator script in backend/src/scripts/generateTestData.js (500 items, 50 users, 1000 lending logs per FR-036)
+- [X] T137b [P] [US5] Create performance benchmark suite in backend/tests/performance/ using k6 or custom Node.js script
+- [X] T137c [US5] Add dashboard load time test (target: <2s per SC-004/FR-035)
+- [X] T137d [US5] Add search response time test (target: <1s per SC-005/FR-035)
+- [X] T137e [US5] Add response time logging to itemController and lendingController per FR-037
+- [X] T137f **VERIFY**: Run performance tests against test dataset and confirm all thresholds met (SC-004, SC-005)
 
 **Checkpoint**: User Story 5 complete - Dashboard provides at-a-glance system status
 

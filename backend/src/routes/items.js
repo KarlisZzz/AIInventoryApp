@@ -11,6 +11,7 @@
 const express = require('express');
 const router = express.Router();
 const itemController = require('../controllers/itemController');
+const { performanceLoggers } = require('../middleware/performanceLogger');
 
 // ============================================================================
 // Item Routes
@@ -64,7 +65,7 @@ router.post('/', itemController.createItem);
  * Response: 200 OK
  * Body: { data: Item[], message: string }
  */
-router.get('/', itemController.getAllItems);
+router.get('/', performanceLoggers.search, itemController.getAllItems);
 
 /**
  * GET /api/v1/items/:id

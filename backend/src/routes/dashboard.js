@@ -10,6 +10,7 @@
 const express = require('express');
 const router = express.Router();
 const itemController = require('../controllers/itemController');
+const { performanceLoggers } = require('../middleware/performanceLogger');
 
 // ============================================================================
 // Dashboard Routes
@@ -46,6 +47,6 @@ const itemController = require('../controllers/itemController');
  * @see T120 - getDashboardData controller method
  * @see T119 - getCurrentlyLentItems service method
  */
-router.get('/', itemController.getDashboardData);
+router.get('/', performanceLoggers.dashboard, itemController.getDashboardData);
 
 module.exports = router;

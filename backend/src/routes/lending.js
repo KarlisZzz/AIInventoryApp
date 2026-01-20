@@ -10,6 +10,7 @@
 const express = require('express');
 const router = express.Router();
 const lendingController = require('../controllers/lendingController');
+const { performanceLoggers } = require('../middleware/performanceLogger');
 
 /**
  * POST /api/v1/lending/lend
@@ -19,7 +20,7 @@ const lendingController = require('../controllers/lendingController');
  * Body: { itemId, userId, conditionNotes? }
  * Response: { data: { item, log }, error, message }
  */
-router.post('/lend', lendingController.lendItem);
+router.post('/lend', performanceLoggers.lend, lendingController.lendItem);
 
 /**
  * POST /api/v1/lending/return
@@ -29,7 +30,7 @@ router.post('/lend', lendingController.lendItem);
  * Body: { itemId, returnConditionNotes? }
  * Response: { data: { item, log }, error, message }
  */
-router.post('/return', lendingController.returnItem);
+router.post('/return', performanceLoggers.return, lendingController.returnItem);
 
 /**
  * GET /api/v1/lending/history/:itemId
@@ -38,7 +39,7 @@ router.post('/return', lendingController.returnItem);
  * 
  * Response: { data: LendingLog[], error, message }
  */
-router.get('/history/:itemId', lendingController.getItemHistory);
+router.get('/history/:itemId', performanceLoggers.history, lendingController.getItemHistory);
 
 /**
  * GET /api/v1/lending/current
