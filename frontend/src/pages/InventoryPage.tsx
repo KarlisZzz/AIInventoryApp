@@ -11,6 +11,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { useToast } from '../components/ToastContainer';
 import SearchBar from '../components/SearchBar';
 import ItemForm from '../components/ItemForm';
 import ItemList from '../components/ItemList';
@@ -28,6 +29,7 @@ import {
 } from '../services/itemService';
 
 export default function InventoryPage() {
+  const { showSuccess, showError } = useToast();
   const [items, setItems] = useState<Item[]>([]);
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -118,15 +120,19 @@ export default function InventoryPage() {
 
       if (editingItem) {
         await updateItem(editingItem.id, data as UpdateItemData);
+        showSuccess(`Item "${data.name}" updated successfully`);
       } else {
         await createItem(data as CreateItemData);
+        showSuccess(`Item "${data.name}" created successfully`);
       }
 
       setShowForm(false);
       setEditingItem(null);
       await loadItems(); // Refresh the list
     } catch (err: any) {
-      setError(err.message || 'Failed to save item');
+      const errorMsg = err.message || 'Failed to save item';
+      setError(errorMsg);
+      showError(errorMsg);
       throw err; // Re-throw to let form handle it
     } finally {
       setIsSubmitting(false);
@@ -136,10 +142,14 @@ export default function InventoryPage() {
   const handleDelete = async (itemId: string) => {
     try {
       setError(null);
+      const item = items.find(i => i.id === itemId);
       await deleteItem(itemId);
+      showSuccess(`Item "${item?.name || 'Item'}" deleted successfully`);
       await loadItems(); // Refresh the list
     } catch (err: any) {
-      setError(err.message || 'Failed to delete item');
+      const errorMsg = err.message || 'Failed to delete item';
+      setError(errorMsg);
+      showError(errorMsg);
       throw err; // Re-throw to let ItemCard handle it
     }
   };
@@ -156,6 +166,7 @@ export default function InventoryPage() {
 
   const handleLendSuccess = async () => {
     // Refresh items list after successful lending (T075)
+    showSuccess(`Item "${lendingItem?.name}" lent successfully`);
     await loadItems();
     setShowLendDialog(false);
     setLendingItem(null);
@@ -173,6 +184,7 @@ export default function InventoryPage() {
 
   const handleReturnSuccess = async () => {
     // Refresh items list after successful return (T094)
+    showSuccess(`Item "${returningItem?.name}" returned successfully`);
     await loadItems();
     setShowReturnDialog(false);
     setReturningItem(null);
@@ -197,7 +209,7 @@ export default function InventoryPage() {
   const uniqueCategories = Array.from(new Set(items.map((item) => item.category))).sort();
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <main id="main-content" className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-200 mb-2">Inventory Management</h1>
@@ -337,6 +349,6 @@ export default function InventoryPage() {
           onClose={handleHistoryClose}
         />
       )}
-    </div>
+    </main>
   );
 }

@@ -10,7 +10,21 @@
  * Enables performance monitoring and threshold alerting.
  */
 
-const logger = require('./logger');
+/**
+ * Simple logger for performance metrics
+ * Uses console with timestamps and formatting
+ */
+const logger = {
+  info: (message, data) => {
+    console.log(`[INFO] ${new Date().toISOString()} - ${message}`, data ? JSON.stringify(data, null, 2) : '');
+  },
+  warn: (message, data) => {
+    console.warn(`[WARN] ${new Date().toISOString()} - ${message}`, data ? JSON.stringify(data, null, 2) : '');
+  },
+  error: (message, data) => {
+    console.error(`[ERROR] ${new Date().toISOString()} - ${message}`, data ? JSON.stringify(data, null, 2) : '');
+  }
+};
 
 /**
  * Middleware to measure and log response time

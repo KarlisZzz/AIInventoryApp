@@ -8,11 +8,14 @@
  * - User selection via searchable dropdown (T071)
  * - Optional condition notes field (T074)
  * - Error handling for concurrent lending attempts (T076)
+ * - Keyboard navigation support (T160)
+ * - ARIA labels for accessibility (T159)
  * 
  * @see specs/001-inventory-lending/spec.md (User Story 2)
  */
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useKeyboardNavigation, useFocusTrap } from '../hooks/useKeyboardNavigation';
 import UserSelect from './UserSelect';
 import { lendItem, type LendItemRequest } from '../services/lendingService';
 
@@ -31,11 +34,16 @@ export default function LendDialog({
   onClose,
   onSuccess,
 }: LendDialogProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [conditionNotes, setConditionNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userSelectError, setUserSelectError] = useState<string | null>(null);
+
+  // Keyboard navigation support (T160)
+  useKeyboardNavigation({ isOpen, onClose, closeOnEscape: !isSubmitting });
+  useFocusTrap(isOpen, dialogRef);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,19 +113,26 @@ export default function LendDialog({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-40"
+        className="fixed inset-0 bg-black bg-opacity-50 z-40 modal-backdrop"
         onClick={handleClose}
+        aria-hidden="true"
       />
 
       {/* Dialog */}
-      <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+      <div 
+        className="fixed inset-0 flex items-center justify-center z-50 p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="lend-dialog-title"
+      >
         <div
+          ref={dialogRef}
           className="bg-white rounded-lg shadow-xl max-w-md w-full"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">Lend Item</h2>
+            <h2 id="lend-dialog-title" className="text-xl font-semibold text-gray-900">Lend Item</h2>
             <p className="mt-1 text-sm text-gray-600">
               Lending: <span className="font-medium">{itemName}</span>
             </p>

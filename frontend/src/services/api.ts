@@ -21,10 +21,20 @@ export interface ApiError {
 // Base URL configuration - use environment variable or default to /api/v1
 const baseURL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
+// Retry configuration (T158)
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
+
+/**
+ * Delay helper for retry logic
+ */
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 /**
  * Axios instance configured for the inventory API
  * - Enforces /api/v1/ prefix (FR-001-API)
  * - Handles response envelope unwrapping (FR-002-API)
+ * - Implements retry logic for transient failures (T158)
  */
 const apiClient = axios.create({
   baseURL,
@@ -64,6 +74,24 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error: AxiosError<ApiEnvelope>) => {
+    // Retry logic for transient failures (T158)
+    const config = error.config as InternalAxiosRequestConfig & { retryCount?: number };
+    
+    // Don't retry on client errors (4xx) or if we've exhausted retries
+    const shouldRetry = 
+      config &&
+      (!error.response || error.response.status >= 500) &&
+      (config.retryCount ?? 0) < MAX_RETRIES;
+
+    if (shouldRetry) {
+      config.retryCount = (config.retryCount ?? 0) + 1;
+      
+      // Exponential backoff: delay increases with each retry
+      const retryDelay = RETRY_DELAY * Math.pow(2, config.retryCount - 1);
+      
+      return delay(retryDelay).then(() => apiClient.request(config));
+    }
+    
     // Extract error message from envelope if present
     if (error.response?.data) {
       const envelope = error.response.data;

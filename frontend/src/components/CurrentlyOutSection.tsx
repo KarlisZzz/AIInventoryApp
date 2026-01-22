@@ -9,6 +9,8 @@
 
 import type { Item } from '../services/itemService';
 import LentItemCard from './LentItemCard';
+import LoadingSpinner from './LoadingSpinner';
+import EmptyState from './EmptyState';
 
 interface CurrentlyOutSectionProps {
   items: Item[];
@@ -28,35 +30,35 @@ export default function CurrentlyOutSection({
     return (
       <div className="glass-card p-6">
         <h2 className="text-2xl font-bold text-slate-200 mb-4">Items Currently Out</h2>
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        </div>
+        <LoadingSpinner size="md" text="Loading..." />
       </div>
     );
   }
 
-  // Empty state - T129
+  // Empty state - T129, T162
   if (items.length === 0) {
     return (
       <div className="glass-card p-6">
         <h2 className="text-2xl font-bold text-slate-200 mb-4">Items Currently Out</h2>
-        <div className="bg-slate-800/30 border border-slate-700 rounded-lg p-8 text-center">
-          <svg 
-            className="mx-auto h-12 w-12 text-slate-600 mb-3" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth={2} 
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" 
-            />
-          </svg>
-          <p className="text-lg text-slate-400 mb-1">No items currently lent</p>
-          <p className="text-sm text-slate-500">All items are available in the inventory</p>
-        </div>
+        <EmptyState
+          icon={
+            <svg 
+              className="w-full h-full text-slate-600" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" 
+              />
+            </svg>
+          }
+          title="No items currently lent"
+          description="All items are available in the inventory"
+        />
       </div>
     );
   }

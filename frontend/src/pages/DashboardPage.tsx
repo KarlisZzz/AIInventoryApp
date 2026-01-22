@@ -12,6 +12,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { useToast } from '../components/ToastContainer';
 import { getDashboardData, type DashboardData } from '../services/dashboardService';
 import CurrentlyOutSection from '../components/CurrentlyOutSection';
 import SearchBar from '../components/SearchBar';
@@ -22,6 +23,7 @@ import LendDialog from '../components/LendDialog';
 import type { Item } from '../services/itemService';
 
 const DashboardPage = () => {
+  const { showSuccess } = useToast();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,6 +69,7 @@ const DashboardPage = () => {
   };
 
   const handleReturnSuccess = async () => {
+    showSuccess(`Item "${returnDialogItem?.name}" returned successfully`);
     setReturnDialogItem(null);
     // Reload dashboard to reflect changes (T128)
     await loadDashboard(searchQuery);
@@ -83,6 +86,7 @@ const DashboardPage = () => {
   };
 
   const handleLendSuccess = async () => {
+    showSuccess(`Item "${lendDialogItem?.name}" lent successfully`);
     setLendDialogItem(null);
     // Reload dashboard to reflect changes (T128)
     await loadDashboard(searchQuery);
@@ -101,7 +105,7 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main id="main-content" className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-slate-200 mb-2">Dashboard</h1>
@@ -232,7 +236,7 @@ const DashboardPage = () => {
           onSuccess={handleLendSuccess}
         />
       )}
-    </div>
+    </main>
   );
 };
 
