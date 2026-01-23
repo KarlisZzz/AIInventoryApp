@@ -127,7 +127,7 @@
 - [X] T053 [US1] **VERIFY**: Edit an item and confirm changes persist after page refresh
 - [X] T054 [US1] **VERIFY**: Delete an Available item and confirm it's removed from database
 - [X] T055 [US1] **VERIFY**: Attempt to delete a Lent item and confirm error message is displayed
-- [ ] T055a [US1] **VERIFY**: Attempt to delete an Available item that has lending history (past LendingLog records) and confirm error prevents deletion (FR-008/FR-009 audit preservation)
+- [X] T055a [US1] **VERIFY**: Attempt to delete an Available item that has lending history (past LendingLog records) and confirm error prevents deletion (FR-008/FR-009 audit preservation)
 - [X] T056 [US1] **VERIFY**: Search for items by name/category and confirm filtering works correctly
 - [X] T057 [US1] **VERIFY**: Test with empty Name or Category and confirm validation prevents submission
 
