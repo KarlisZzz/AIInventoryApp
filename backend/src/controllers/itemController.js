@@ -334,6 +334,98 @@ async function getDashboardData(req, res, next) {
   }
 }
 
+/**
+ * Upload image for an item
+ * POST /api/v1/items/:id/image
+ * 
+ * Expects multipart/form-data with 'image' field.
+ * File is processed by multer middleware before this controller.
+ * 
+ * @param {Request} req - Express request with req.file (from multer)
+ * @param {Response} res - Express response
+ * @param {Function} next - Express next middleware
+ * 
+ * @see specs/002-item-ui-enhancements/contracts/POST-items-id-image.md
+ */
+async function uploadImage(req, res, next) {
+  try {
+    const { id } = req.params;
+    
+    console.log(`🎯 uploadImage controller called for item: ${id}`);
+    
+    if (!id) {
+      return res.error('Item ID is required', 400);
+    }
+    
+    // Check if file was uploaded
+    if (!req.file) {
+      console.log('❌ No file in request');
+      return res.error('Image file is required', 400);
+    }
+    
+    console.log(`📁 File received: ${req.file.filename}`);
+    
+    // Update item with image URL
+    const item = await itemService.uploadItemImage(id, req.file.filename);
+    
+    console.log(`✅ Item updated, imageUrl: ${item.imageUrl}`);
+    
+    return res.success(
+      { 
+        imageUrl: item.imageUrl,
+        item: item 
+      },
+      'Image uploaded successfully',
+      201
+    );
+  } catch (error) {
+    console.log(`❌ Error in uploadImage: ${error.message}`);
+    if (error.message === 'Item not found') {
+      return res.error('ITEM_NOT_FOUND', 'Item not found', 404);
+    }
+    next(error);
+  }
+}
+
+/**
+ * Delete image from an item
+ * DELETE /api/v1/items/:id/image
+ * 
+ * Removes the image file and clears the imageUrl field.
+ * 
+ * @param {Request} req - Express request
+ * @param {Response} res - Express response
+ * @param {Function} next - Express next middleware
+ * 
+ * @see specs/002-item-ui-enhancements/contracts/DELETE-items-id-image.md
+ */
+async function deleteImage(req, res, next) {
+  try {
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.error('Item ID is required', 400);
+    }
+    
+    const item = await itemService.deleteItemImage(id);
+    
+    return res.success(
+      { item: item },
+      'Image deleted successfully'
+    );
+  } catch (error) {
+    if (error.message === 'Item not found') {
+      return res.error('ITEM_NOT_FOUND', 'Item not found', 404);
+    }
+    
+    if (error.message === 'Item does not have an image') {
+      return res.error('NO_IMAGE', 'Item does not have an image', 400);
+    }
+    
+    next(error);
+  }
+}
+
 module.exports = {
   createItem,
   getAllItems,
@@ -343,4 +435,6 @@ module.exports = {
   searchItems,
   getCategories,
   getDashboardData,
+  uploadImage,
+  deleteImage,
 };

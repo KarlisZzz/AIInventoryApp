@@ -8,6 +8,7 @@
  * @see Constitution Principle II - API Design Standards
  */
 
+const multer = require('multer');
 const config = require('../config/env');
 
 /**
@@ -132,6 +133,49 @@ function errorHandler(err, req, res, next) {
         details: sequelizeError.details,
       },
       message: sequelizeError.message,
+    });
+  }
+  
+  // Handle Multer file upload errors
+  if (err instanceof multer.MulterError) {
+    let statusCode = 400;
+    let code = 'FILE_UPLOAD_ERROR';
+    let message = 'File upload failed';
+    
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      statusCode = 413;
+      code = 'FILE_TOO_LARGE';
+      message = 'File size exceeds 5MB limit';
+    } else if (err.code === 'LIMIT_FILE_COUNT') {
+      statusCode = 400;
+      code = 'TOO_MANY_FILES';
+      message = 'Only one file can be uploaded at a time';
+    } else if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      statusCode = 400;
+      code = 'UNEXPECTED_FILE';
+      message = 'Unexpected file field';
+    }
+    
+    return res.status(statusCode).json({
+      data: null,
+      error: {
+        code,
+        message,
+        details: config.isDevelopment ? { multerCode: err.code } : null,
+      },
+      message,
+    });
+  }
+  
+  // Handle file type validation errors from multer fileFilter
+  if (err.message && err.message.startsWith('FILE_TYPE_INVALID:')) {
+    return res.status(400).json({
+      data: null,
+      error: {
+        code: 'FILE_TYPE_INVALID',
+        message: err.message.replace('FILE_TYPE_INVALID: ', ''),
+      },
+      message: 'Invalid file type',
     });
   }
   

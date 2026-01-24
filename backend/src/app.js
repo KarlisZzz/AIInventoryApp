@@ -12,6 +12,7 @@
 
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const config = require('./config/env');
 const { enforceApiVersion } = require('./middleware/apiVersion');
 const { attachResponseHelpers } = require('./middleware/responseEnvelope');
@@ -35,6 +36,9 @@ app.use(cors(config.cors));
 // Body parsing - JSON and URL-encoded
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Static file serving - Serve uploaded images
+app.use('/uploads', express.static(path.join(__dirname, '../data/uploads')));
 
 // Input sanitization - Remove null bytes and trim whitespace
 app.use(sanitizeInput);

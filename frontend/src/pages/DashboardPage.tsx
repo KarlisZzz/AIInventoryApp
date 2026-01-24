@@ -14,16 +14,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '../components/ToastContainer';
 import { getDashboardData, type DashboardData } from '../services/dashboardService';
+import { updateItem, deleteItem, type UpdateItemData } from '../services/itemService';
 import CurrentlyOutSection from '../components/CurrentlyOutSection';
 import SearchBar from '../components/SearchBar';
 import ItemList from '../components/ItemList';
 import ReturnDialog from '../components/ReturnDialog';
 import HistoryDialog from '../components/HistoryDialog';
 import LendDialog from '../components/LendDialog';
+import ItemForm from '../components/ItemForm';
 import type { Item } from '../services/itemService';
 
 const DashboardPage = () => {
-  const { showSuccess } = useToast();
+  const { showSuccess, showError } = useToast();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +35,9 @@ const DashboardPage = () => {
   const [returnDialogItem, setReturnDialogItem] = useState<Item | null>(null);
   const [historyDialogItem, setHistoryDialogItem] = useState<Item | null>(null);
   const [lendDialogItem, setLendDialogItem] = useState<Item | null>(null);
+  const [editingItem, setEditingItem] = useState<Item | null>(null);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load dashboard data
   const loadDashboard = useCallback(async (search?: string) => {
@@ -92,16 +97,49 @@ const DashboardPage = () => {
     await loadDashboard(searchQuery);
   };
 
-  // Handle delete (placeholder - not in scope for US5)
+  // Handle delete
   const handleDelete = async (itemId: string) => {
-    // This would call deleteItem from itemService
-    console.log('Delete item:', itemId);
+    try {
+      await deleteItem(itemId);
+      showSuccess('Item deleted successfully');
+      await loadDashboard(searchQuery);
+    } catch (err: any) {
+      const errorMsg = err.message || 'Failed to delete item';
+      showError(errorMsg);
+    }
   };
 
-  // Handle edit (placeholder - not in scope for US5)
+  // Handle edit
   const handleEdit = (item: Item) => {
-    // This would open an edit dialog
-    console.log('Edit item:', item);
+    setEditingItem(item);
+    setShowEditForm(true);
+  };
+
+  // Handle edit form submission
+  const handleEditFormSubmit = async (data: UpdateItemData): Promise<Item | void> => {
+    try {
+      setIsSubmitting(true);
+      setError(null);
+
+      const result = await updateItem(editingItem!.id, data);
+      showSuccess(`Item "${data.name || editingItem!.name}" updated successfully`);
+
+      return result;
+    } catch (err: any) {
+      const errorMsg = err.message || 'Failed to update item';
+      setError(errorMsg);
+      showError(errorMsg);
+      throw err;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle edit form completion
+  const handleEditFormComplete = async () => {
+    await loadDashboard(searchQuery);
+    setShowEditForm(false);
+    setEditingItem(null);
   };
 
   return (
@@ -235,6 +273,40 @@ const DashboardPage = () => {
           onClose={() => setLendDialogItem(null)}
           onSuccess={handleLendSuccess}
         />
+      )}
+
+      {/* Edit Item Dialog */}
+      {showEditForm && editingItem && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          onClick={() => {
+            if (!isSubmitting) {
+              setShowEditForm(false);
+              setEditingItem(null);
+            }
+          }}
+        >
+          <div
+            className="bg-slate-800 border border-slate-700 rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-2xl font-bold text-slate-200 mb-6">
+              Edit Item
+            </h2>
+            <ItemForm
+              item={editingItem}
+              onSubmit={handleEditFormSubmit}
+              onCancel={() => {
+                if (!isSubmitting) {
+                  setShowEditForm(false);
+                  setEditingItem(null);
+                }
+              }}
+              onComplete={handleEditFormComplete}
+              isLoading={isSubmitting}
+            />
+          </div>
+        </div>
       )}
     </main>
   );

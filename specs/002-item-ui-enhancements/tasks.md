@@ -22,9 +22,9 @@
 
 **Purpose**: Project initialization for image upload feature
 
-- [ ] T001 Create upload directory at backend/data/uploads/items/ with .gitkeep
-- [ ] T002 [P] Install multer package in backend (npm install multer)
-- [ ] T003 [P] Ensure Express static middleware serves /uploads in backend/src/app.js
+- [X] T001 Create upload directory at backend/data/uploads/items/ with .gitkeep
+- [X] T002 [P] Install multer package in backend (npm install multer)
+- [X] T003 [P] Ensure Express static middleware serves /uploads in backend/src/app.js
 
 ---
 
@@ -34,13 +34,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create database migration 003_add_item_image_url.js in backend/src/db/migrations/
-- [ ] T005 Run migration to add imageUrl column to items table
-- [ ] T006 Verify migration success with sqlite3 schema check
-- [ ] T007 [P] Create fileStorageService.js in backend/src/services/ with ensureUploadDir, getImageUrl, deleteImageFile methods
-- [ ] T008 [P] Create multer middleware configuration in backend/src/middleware/upload.js with file type and size validation
-- [ ] T009 [P] Update multer error handling in backend/src/middleware/errorHandler.js for LIMIT_FILE_SIZE and file type errors
-- [ ] T010 Update Item TypeScript interface to include imageUrl field in frontend/src/services/itemService.ts
+- [X] T004 Create database migration 003_add_item_image_url.js in backend/src/db/migrations/
+- [X] T005 Run migration to add imageUrl column to items table
+- [X] T006 Verify migration success with sqlite3 schema check
+- [X] T007 [P] Create fileStorageService.js in backend/src/services/ with ensureUploadDir, getImageUrl, deleteImageFile methods
+- [X] T008 [P] Create multer middleware configuration in backend/src/middleware/upload.js with file type and size validation
+- [X] T009 [P] Update multer error handling in backend/src/middleware/errorHandler.js for LIMIT_FILE_SIZE and file type errors
+- [X] T010 Update Item TypeScript interface to include imageUrl field in frontend/src/services/itemService.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -56,24 +56,24 @@
 
 #### Backend - Image Upload API
 
-- [ ] T011 [P] [US1] Add uploadItemImage method to backend/src/services/itemService.js
-- [ ] T012 [P] [US1] Add deleteItemImage method to backend/src/services/itemService.js
-- [ ] T013 [US1] Add uploadImage controller method in backend/src/controllers/itemController.js
-- [ ] T014 [US1] Add deleteImage controller method in backend/src/controllers/itemController.js
-- [ ] T015 [US1] Add POST /:id/image route in backend/src/routes/itemRoutes.js with upload.single middleware
-- [ ] T016 [US1] Add DELETE /:id/image route in backend/src/routes/itemRoutes.js
-- [ ] T017 [US1] Call ensureUploadDir on server startup in backend/src/app.js or backend/src/server.js
+- [X] T011 [P] [US1] Add uploadItemImage method to backend/src/services/itemService.js
+- [X] T012 [P] [US1] Add deleteItemImage method to backend/src/services/itemService.js
+- [X] T013 [US1] Add uploadImage controller method in backend/src/controllers/itemController.js
+- [X] T014 [US1] Add deleteImage controller method in backend/src/controllers/itemController.js
+- [X] T015 [US1] Add POST /:id/image route in backend/src/routes/items.js with upload.single middleware
+- [X] T016 [US1] Add DELETE /:id/image route in backend/src/routes/items.js
+- [X] T017 [US1] Call ensureUploadDir on server startup in backend/src/server.js
 
 #### Frontend - Image Upload Component
 
-- [ ] T018 [P] [US1] Create ImageUpload component in frontend/src/components/ImageUpload.tsx with file preview and validation
-- [ ] T019 [P] [US1] Add uploadItemImage API function in frontend/src/services/itemService.ts
-- [ ] T020 [P] [US1] Add deleteItemImage API function in frontend/src/services/itemService.ts
-- [ ] T021 [US1] Integrate ImageUpload component into ItemForm in frontend/src/components/ItemForm.tsx
-- [ ] T022 [US1] Add image upload/delete handling to ItemForm submit in frontend/src/components/ItemForm.tsx
-- [ ] T023 [US1] Update ItemCard to display image with aspect-square ratio in frontend/src/components/ItemCard.tsx
-- [ ] T024 [US1] Add placeholder SVG for items without images in frontend/src/components/ItemCard.tsx
-- [ ] T025 [US1] Add image onError fallback handler in frontend/src/components/ItemCard.tsx
+- [X] T018 [P] [US1] Create ImageUpload component in frontend/src/components/ImageUpload.tsx with file preview and validation
+- [X] T019 [P] [US1] Add uploadItemImage API function in frontend/src/services/itemService.ts
+- [X] T020 [P] [US1] Add deleteItemImage API function in frontend/src/services/itemService.ts
+- [X] T021 [US1] Integrate ImageUpload component into ItemForm in frontend/src/components/ItemForm.tsx
+- [X] T022 [US1] Add image upload/delete handling to ItemForm submit in frontend/src/components/ItemForm.tsx
+- [X] T023 [US1] Update ItemCard to display image with aspect-square ratio in frontend/src/components/ItemCard.tsx
+- [X] T024 [US1] Add placeholder SVG for items without images in frontend/src/components/ItemCard.tsx
+- [X] T025 [US1] Add image onError fallback handler in frontend/src/components/ItemCard.tsx
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - users can upload, view, and remove images from items
 
@@ -87,15 +87,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T026 [P] [US2] Create useLocalStorage custom hook in frontend/src/hooks/useLocalStorage.ts
-- [ ] T027 [P] [US2] Create ViewToggle component in frontend/src/components/ViewToggle.tsx with grid/list icons
-- [ ] T028 [US2] Add viewMode state with useLocalStorage hook in frontend/src/pages/InventoryPage.tsx
-- [ ] T029 [US2] Add viewMode prop to ItemList component interface in frontend/src/components/ItemList.tsx
-- [ ] T030 [US2] Implement grid view rendering (existing layout) in frontend/src/components/ItemList.tsx
-- [ ] T031 [US2] Implement list view rendering with table layout in frontend/src/components/ItemList.tsx
-- [ ] T032 [US2] Add thumbnail image column to list view table in frontend/src/components/ItemList.tsx
-- [ ] T033 [US2] Integrate ViewToggle component in InventoryPage header in frontend/src/pages/InventoryPage.tsx
-- [ ] T034 [US2] Verify view preference persists across page refreshes via localStorage
+- [X] T026 [P] [US2] Create useLocalStorage custom hook in frontend/src/hooks/useLocalStorage.ts
+- [X] T027 [P] [US2] Create ViewToggle component in frontend/src/components/ViewToggle.tsx with grid/list icons
+- [X] T028 [US2] Add viewMode state with useLocalStorage hook in frontend/src/pages/InventoryPage.tsx
+- [X] T029 [US2] Add viewMode prop to ItemList component interface in frontend/src/components/ItemList.tsx
+- [X] T030 [US2] Implement grid view rendering (existing layout) in frontend/src/components/ItemList.tsx
+- [X] T031 [US2] Implement list view rendering with table layout in frontend/src/components/ItemList.tsx
+- [X] T032 [US2] Add thumbnail image column to list view table in frontend/src/components/ItemList.tsx
+- [X] T033 [US2] Integrate ViewToggle component in InventoryPage header in frontend/src/pages/InventoryPage.tsx
+- [X] T034 [US2] Verify view preference persists across page refreshes via localStorage
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently - images display correctly in both grid and list views
 
@@ -109,16 +109,16 @@
 
 ### Implementation for User Story 3
 
-- [ ] T035 [P] [US3] Create DropdownMenu component in frontend/src/components/DropdownMenu.tsx with click-outside detection
-- [ ] T036 [P] [US3] Add Escape key handler to close dropdown in frontend/src/components/DropdownMenu.tsx
-- [ ] T037 [US3] Define MenuItem interface with label, onClick, disabled, tooltip, variant properties in frontend/src/components/DropdownMenu.tsx
-- [ ] T038 [US3] Refactor ItemCard to remove inline action buttons in frontend/src/components/ItemCard.tsx
-- [ ] T039 [US3] Add three-dots menu button in top-right corner of ItemCard image section in frontend/src/components/ItemCard.tsx
-- [ ] T040 [US3] Build menuItems array with Edit, Lend/Return, View History, Delete actions in frontend/src/components/ItemCard.tsx
-- [ ] T041 [US3] Integrate DropdownMenu component with menuItems in frontend/src/components/ItemCard.tsx
-- [ ] T042 [US3] Add conditional logic to disable Delete for Lent items with tooltip in frontend/src/components/ItemCard.tsx
-- [ ] T043 [US3] Add three-dots menu to Actions column in list view table in frontend/src/components/ItemList.tsx
-- [ ] T044 [US3] Ensure dropdown closes automatically after action selected in frontend/src/components/DropdownMenu.tsx
+- [X] T035 [P] [US3] Create DropdownMenu component in frontend/src/components/DropdownMenu.tsx with click-outside detection
+- [X] T036 [P] [US3] Add Escape key handler to close dropdown in frontend/src/components/DropdownMenu.tsx
+- [X] T037 [US3] Define MenuItem interface with label, onClick, disabled, tooltip, variant properties in frontend/src/components/DropdownMenu.tsx
+- [X] T038 [US3] Refactor ItemCard to remove inline action buttons in frontend/src/components/ItemCard.tsx
+- [X] T039 [US3] Add three-dots menu button in top-right corner of ItemCard image section in frontend/src/components/ItemCard.tsx
+- [X] T040 [US3] Build menuItems array with Edit, Lend/Return, View History, Delete actions in frontend/src/components/ItemCard.tsx
+- [X] T041 [US3] Integrate DropdownMenu component with menuItems in frontend/src/components/ItemCard.tsx
+- [X] T042 [US3] Add conditional logic to disable Delete for Lent items with tooltip in frontend/src/components/ItemCard.tsx
+- [X] T043 [US3] Add three-dots menu to Actions column in list view table in frontend/src/components/ItemList.tsx
+- [X] T044 [US3] Ensure dropdown closes automatically after action selected in frontend/src/components/DropdownMenu.tsx
 
 **Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work independently - cleaner card UI with dropdown menus
 
@@ -132,15 +132,15 @@
 
 ### Implementation for User Story 4
 
-- [ ] T045 [US4] Add menuOpen state to track dropdown visibility in frontend/src/components/ItemCard.tsx
-- [ ] T046 [US4] Add handleCardClick function that calls onEdit when menu is not open in frontend/src/components/ItemCard.tsx
-- [ ] T047 [US4] Add onClick handler to card container div in frontend/src/components/ItemCard.tsx
-- [ ] T048 [US4] Add cursor-pointer class to card container in frontend/src/components/ItemCard.tsx
-- [ ] T049 [US4] Add hover ring effect (ring-2 ring-blue-500/50) to card for visual feedback in frontend/src/components/ItemCard.tsx
-- [ ] T050 [US4] Update three-dots menu button onClick to use stopPropagation in frontend/src/components/ItemCard.tsx
-- [ ] T051 [US4] Add onClick handler to list view table rows in frontend/src/components/ItemList.tsx
-- [ ] T052 [US4] Add stopPropagation to Actions column in list view to prevent row click in frontend/src/components/ItemList.tsx
-- [ ] T053 [US4] Verify scroll position is preserved when dialog opens/closes (React Portal handles this)
+- [X] T045 [US4] Add menuOpen state to track dropdown visibility in frontend/src/components/ItemCard.tsx
+- [X] T046 [US4] Add handleCardClick function that calls onEdit when menu is not open in frontend/src/components/ItemCard.tsx
+- [X] T047 [US4] Add onClick handler to card container div in frontend/src/components/ItemCard.tsx
+- [X] T048 [US4] Add cursor-pointer class to card container in frontend/src/components/ItemCard.tsx
+- [X] T049 [US4] Add hover ring effect (ring-2 ring-blue-500/50) to card for visual feedback in frontend/src/components/ItemCard.tsx
+- [X] T050 [US4] Update three-dots menu button onClick to use stopPropagation in frontend/src/components/ItemCard.tsx
+- [X] T051 [US4] Add onClick handler to list view table rows in frontend/src/components/ItemList.tsx
+- [X] T052 [US4] Add stopPropagation to Actions column in list view to prevent row click in frontend/src/components/ItemList.tsx
+- [X] T053 [US4] Verify scroll position is preserved when dialog opens/closes (React Portal handles this)
 
 **Checkpoint**: All user stories should now be independently functional - complete feature ready for testing
 
@@ -150,17 +150,17 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T054 [P] Update README.md in specs/002-item-ui-enhancements/ with feature summary
-- [ ] T055 [P] Add image upload instructions to backend/README.md
-- [ ] T056 Verify all Constitutional principles are followed (RESTful API, modular architecture, clean code)
-- [ ] T057 Test image upload with 5MB file to verify size limit enforcement
-- [ ] T058 Test image upload with invalid file type (PDF, TXT) to verify validation
-- [ ] T059 Test orphan file cleanup when upload fails or item is deleted
-- [ ] T060 Test view toggle persistence across browser sessions
-- [ ] T061 Test three-dots menu closes on click outside and Escape key
-- [ ] T062 Test click-to-edit does not trigger when menu is open
-- [ ] T063 Run quickstart.md validation by following implementation steps
-- [ ] T064 Create pull request with screenshots of grid view with images
+- [X] T054 [P] Update README.md in specs/002-item-ui-enhancements/ with feature summary
+- [X] T055 [P] Add image upload instructions to backend/README.md
+- [X] T056 Verify all Constitutional principles are followed (RESTful API, modular architecture, clean code)
+- [X] T057 Test image upload with 5MB file to verify size limit enforcement
+- [X] T058 Test image upload with invalid file type (PDF, TXT) to verify validation
+- [X] T059 Test orphan file cleanup when upload fails or item is deleted
+- [X] T060 Test view toggle persistence across browser sessions
+- [X] T061 Test three-dots menu closes on click outside and Escape key
+- [X] T062 Test click-to-edit does not trigger when menu is open
+- [X] T063 Run quickstart.md validation by following implementation steps
+- [X] T064 Create pull request with screenshots of grid view with images
 
 ---
 
