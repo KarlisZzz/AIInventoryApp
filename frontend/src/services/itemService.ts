@@ -18,6 +18,7 @@ export interface Item {
   description: string | null;
   category: string;
   status: 'Available' | 'Lent' | 'Maintenance';
+  imageUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -138,5 +139,36 @@ export async function searchItems(keyword: string): Promise<Item[]> {
  */
 export async function getCategories(): Promise<string[]> {
   const response = await apiClient.get<string[]>('/items/categories');
+  return response.data;
+}
+
+/**
+ * Upload an image for an item (T019)
+ * 
+ * @param id - Item UUID
+ * @param file - Image file to upload
+ * @returns Promise<Item> - Updated item with imageUrl
+ */
+export async function uploadItemImage(id: string, file: File): Promise<Item> {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const response = await apiClient.post<Item>(`/items/${id}/image`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response.data;
+}
+
+/**
+ * Delete an item's image (T020)
+ * 
+ * @param id - Item UUID
+ * @returns Promise<Item> - Updated item with imageUrl set to null
+ */
+export async function deleteItemImage(id: string): Promise<Item> {
+  const response = await apiClient.delete<Item>(`/items/${id}/image`);
   return response.data;
 }

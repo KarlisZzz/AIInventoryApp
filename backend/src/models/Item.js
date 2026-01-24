@@ -80,6 +80,18 @@ const Item = sequelize.define('Item', {
     comment: 'Current state of the item',
   },
   
+  imageUrl: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    validate: {
+      len: {
+        args: [0, 255],
+        msg: 'Image URL must not exceed 255 characters',
+      },
+    },
+    comment: 'URL path to the item image',
+  },
+  
   createdAt: {
     type: DataTypes.DATE,
     allowNull: false,

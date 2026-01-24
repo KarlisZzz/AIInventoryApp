@@ -12,6 +12,7 @@ const express = require('express');
 const router = express.Router();
 const itemController = require('../controllers/itemController');
 const { performanceLoggers } = require('../middleware/performanceLogger');
+const upload = require('../middleware/upload');
 
 // ============================================================================
 // Item Routes
@@ -112,5 +113,36 @@ router.put('/:id', itemController.updateItem);
  * Body: { data: null, message: string }
  */
 router.delete('/:id', itemController.deleteItem);
+
+/**
+ * POST /api/v1/items/:id/image
+ * Upload image for an item
+ * 
+ * Params:
+ * - id: Item UUID
+ * 
+ * Body (multipart/form-data):
+ * - image: File (JPG, PNG, WebP, max 5MB)
+ * 
+ * Response: 201 Created | 400 Bad Request | 404 Not Found | 413 Payload Too Large
+ * Body: { data: { imageUrl: string, item: Item }, message: string }
+ * 
+ * @see specs/002-item-ui-enhancements/contracts/POST-items-id-image.md
+ */
+router.post('/:id/image', upload.single('image'), itemController.uploadImage);
+
+/**
+ * DELETE /api/v1/items/:id/image
+ * Delete image from an item
+ * 
+ * Params:
+ * - id: Item UUID
+ * 
+ * Response: 200 OK | 400 Bad Request | 404 Not Found
+ * Body: { data: { item: Item }, message: string }
+ * 
+ * @see specs/002-item-ui-enhancements/contracts/DELETE-items-id-image.md
+ */
+router.delete('/:id/image', itemController.deleteImage);
 
 module.exports = router;

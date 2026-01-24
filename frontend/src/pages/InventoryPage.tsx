@@ -12,12 +12,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '../components/ToastContainer';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 import SearchBar from '../components/SearchBar';
 import ItemForm from '../components/ItemForm';
 import ItemList from '../components/ItemList';
 import LendDialog from '../components/LendDialog';
 import ReturnDialog from '../components/ReturnDialog';
 import HistoryDialog from '../components/HistoryDialog';
+import ViewToggle from '../components/ViewToggle';
 import {
   getAllItems,
   createItem,
@@ -46,6 +48,9 @@ export default function InventoryPage() {
   const [showReturnDialog, setShowReturnDialog] = useState(false);
   const [historyItem, setHistoryItem] = useState<Item | null>(null);
   const [showHistoryDialog, setShowHistoryDialog] = useState(false);
+  
+  // View mode state with localStorage persistence (T028 [US2])
+  const [viewMode, setViewMode] = useLocalStorage<'grid' | 'list'>('inventory-view-mode', 'grid');
 
   // Load items on mount
   useEffect(() => {
@@ -113,22 +118,22 @@ export default function InventoryPage() {
     setShowForm(true);
   };
 
-  const handleFormSubmit = async (data: CreateItemData | UpdateItemData) => {
+  const handleFormSubmit = async (data: CreateItemData | UpdateItemData): Promise<Item | void> => {
     try {
       setIsSubmitting(true);
       setError(null);
 
+      let result: Item;
+      
       if (editingItem) {
-        await updateItem(editingItem.id, data as UpdateItemData);
+        result = await updateItem(editingItem.id, data as UpdateItemData);
         showSuccess(`Item "${data.name}" updated successfully`);
       } else {
-        await createItem(data as CreateItemData);
+        result = await createItem(data as CreateItemData);
         showSuccess(`Item "${data.name}" created successfully`);
       }
 
-      setShowForm(false);
-      setEditingItem(null);
-      await loadItems(); // Refresh the list
+      return result; // Return item so form can use the ID
     } catch (err: any) {
       const errorMsg = err.message || 'Failed to save item';
       setError(errorMsg);
@@ -137,6 +142,13 @@ export default function InventoryPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleFormComplete = async () => {
+    // Called when ItemForm completes all operations (save + image upload)
+    await loadItems(); // Refresh the list
+    setShowForm(false);
+    setEditingItem(null);
   };
 
   const handleDelete = async (itemId: string) => {
@@ -229,14 +241,18 @@ export default function InventoryPage() {
           <div className="flex-1">
             <SearchBar onSearch={handleSearch} placeholder="Search by name, category, or description..." />
           </div>
-          <button
-            onClick={handleCreate}
-            className="px-6 py-2 bg-blue-500 text-white rounded-lg font-medium
-                       hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500
-                       transition-colors whitespace-nowrap"
-          >
-            + Add Item
-          </button>
+          <div className="flex gap-2">
+            {/* View Toggle (T033 [US2]) */}
+            <ViewToggle viewMode={viewMode} onViewChange={setViewMode} />
+            <button
+              onClick={handleCreate}
+              className="px-6 py-2 bg-blue-500 text-white rounded-lg font-medium
+                         hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500
+                         transition-colors whitespace-nowrap"
+            >
+              + Add Item
+            </button>
+          </div>
         </div>
 
         {/* Filters */}
@@ -301,6 +317,7 @@ export default function InventoryPage() {
             <ItemForm
               item={editingItem}
               onSubmit={handleFormSubmit}
+              onComplete={handleFormComplete}
               onCancel={handleFormCancel}
               isLoading={isSubmitting}
             />
@@ -317,6 +334,7 @@ export default function InventoryPage() {
         onReturn={handleReturn}
         onViewHistory={handleViewHistory}
         isLoading={isLoading}
+        viewMode={viewMode}
       />
 
       {/* Lend Dialog (T070, T073, T074, T075, T076) */}

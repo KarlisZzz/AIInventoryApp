@@ -9,6 +9,7 @@
 require('dotenv').config();
 const app = require('./app');
 const { getConnection } = require('./db/connection');
+const { ensureUploadDir } = require('./services/fileStorageService');
 // Load models to register them with Sequelize
 require('./models');
 
@@ -24,6 +25,11 @@ async function startServer() {
     console.log('🔌 Initializing database connection...');
     await getConnection();
     console.log('✓ Database connection ready\n');
+    
+    // Ensure upload directory exists
+    console.log('📁 Initializing file storage...');
+    await ensureUploadDir();
+    console.log('✓ File storage ready\n');
     
     // Start Express server
     const server = app.listen(PORT, HOST, () => {

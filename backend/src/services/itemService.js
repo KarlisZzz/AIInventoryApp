@@ -11,6 +11,7 @@
 const Item = require('../models/Item');
 const { sequelize } = require('../config/database');
 const { Op } = require('sequelize');
+const { getImageUrl, deleteImageFile } = require('./fileStorageService');
 
 /**
  * Create a new inventory item
@@ -340,6 +341,138 @@ async function getAllCategories() {
   }
 }
 
+/**
+ * Upload image for an item
+ * 
+ * Updates the item with the image URL after successful file upload.
+ * File upload is handled by multer middleware before this service method is called.
+ * 
+ * @param {string} itemId - Item UUID
+ * @param {string} filename - Generated filename from multer (e.g., "item-1706019234567-abc123def.jpg")
+ * @returns {Promise<Item>} Updated item with imageUrl
+ * @throws {Error} If item not found or update fails
+ */
+async function uploadItemImage(itemId, filename) {
+  if (!itemId) {
+    throw new Error('Item ID is required');
+  }
+  
+  if (!filename) {
+    throw new Error('Filename is required');
+  }
+  
+  const transaction = await sequelize.transaction();
+  
+  try {
+    const item = await Item.findByPk(itemId, { transaction });
+    
+    if (!item) {
+      await transaction.rollback();
+      throw new Error('Item not found');
+    }
+    
+    // Delete old image file if it exists
+    if (item.imageUrl) {
+      try {
+        await deleteImageFile(item.imageUrl);
+      } catch (error) {
+        // Log warning but don't fail the upload if old file deletion fails
+        console.warn(`⚠ Failed to delete old image file: ${error.message}`);
+      }
+    }
+    
+    // Update item with new image URL
+    const imageUrl = getImageUrl(filename);
+    console.log(`🔍 Updating item ${itemId} with imageUrl: ${imageUrl}`);
+    await item.update({ imageUrl }, { transaction });
+    
+    console.log(`🔍 After update, item.imageUrl = ${item.imageUrl}`);
+    
+    await transaction.commit();
+    
+    // Reload item to get fresh data with updated imageUrl
+    await item.reload();
+    
+    console.log(`🔍 After reload, item.imageUrl = ${item.imageUrl}`);
+    
+    return item;
+  } catch (error) {
+    if (transaction.finished !== 'commit') {
+      await transaction.rollback();
+    }
+    
+    // Clean up uploaded file on error
+    try {
+      await deleteImageFile(getImageUrl(filename));
+    } catch (cleanupError) {
+      console.error(`Failed to clean up uploaded file: ${cleanupError.message}`);
+    }
+    
+    if (error.message === 'Item not found') {
+      throw error;
+    }
+    
+    throw new Error(`Failed to upload item image: ${error.message}`);
+  }
+}
+
+/**
+ * Delete image from an item
+ * 
+ * Removes the image file from disk and clears the imageUrl field in the database.
+ * 
+ * @param {string} itemId - Item UUID
+ * @returns {Promise<Item>} Updated item with imageUrl cleared
+ * @throws {Error} If item not found or deletion fails
+ */
+async function deleteItemImage(itemId) {
+  if (!itemId) {
+    throw new Error('Item ID is required');
+  }
+  
+  const transaction = await sequelize.transaction();
+  
+  try {
+    const item = await Item.findByPk(itemId, { transaction });
+    
+    if (!item) {
+      await transaction.rollback();
+      throw new Error('Item not found');
+    }
+    
+    if (!item.imageUrl) {
+      await transaction.rollback();
+      throw new Error('Item does not have an image');
+    }
+    
+    const imageUrl = item.imageUrl;
+    
+    // Clear imageUrl in database first
+    await item.update({ imageUrl: null }, { transaction });
+    await transaction.commit();
+    
+    // Delete file from disk (after successful DB update)
+    try {
+      await deleteImageFile(imageUrl);
+    } catch (error) {
+      // Log warning but don't fail the operation if file deletion fails
+      console.warn(`⚠ Failed to delete image file from disk: ${error.message}`);
+    }
+    
+    return item;
+  } catch (error) {
+    if (transaction.finished !== 'commit') {
+      await transaction.rollback();
+    }
+    
+    if (error.message === 'Item not found' || error.message === 'Item does not have an image') {
+      throw error;
+    }
+    
+    throw new Error(`Failed to delete item image: ${error.message}`);
+  }
+}
+
 module.exports = {
   createItem,
   getAllItems,
@@ -351,4 +484,6 @@ module.exports = {
   getAvailableItems,
   getItemsByCategory,
   getAllCategories,
+  uploadItemImage,
+  deleteItemImage,
 };
