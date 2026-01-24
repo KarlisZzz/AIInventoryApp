@@ -1,0 +1,315 @@
+openapi: 3.0.3
+info:
+  title: Dashboard Analytics API
+  description: |
+    API endpoint for retrieving aggregated dashboard analytics including item status distribution,
+    category distribution, and top borrower statistics.
+    
+    **Feature**: Dashboard Improvements (003-dashboard-improvements)
+    **Version**: 1.0.0
+  version: 1.0.0
+  contact:
+    name: Inventory & Lending API
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+
+tags:
+  - name: Dashboard
+    description: Dashboard analytics and statistics
+
+paths:
+  /dashboard/analytics:
+    get:
+      tags:
+        - Dashboard
+      summary: Get dashboard analytics
+      description: |
+        Retrieves aggregated analytics for dashboard visualization including:
+        - Item status distribution (counts by status)
+        - Item category distribution (counts by category)
+        - Top borrower (user with most items currently borrowed)
+        
+        This endpoint performs server-side aggregation for optimal performance.
+        Results are typically cached client-side for 5 minutes.
+        
+      operationId: getDashboardAnalytics
+      
+      responses:
+        '200':
+          description: Analytics data successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardAnalyticsResponse'
+              examples:
+                withBorrowers:
+                  summary: Dashboard with active loans
+                  value:
+                    statusDistribution:
+                      available: 10
+                      out: 5
+                      maintenance: 2
+                      retired: 1
+                    categoryDistribution:
+                      electronics: 8
+                      tools: 7
+                      books: 3
+                    topBorrower:
+                      name: "John Doe"
+                      count: 3
+                
+                noBorrowers:
+                  summary: Dashboard with no active loans
+                  value:
+                    statusDistribution:
+                      available: 18
+                      maintenance: 2
+                      retired: 1
+                    categoryDistribution:
+                      electronics: 10
+                      tools: 8
+                      books: 3
+                    topBorrower: null
+        
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Internal server error"
+                message: "Failed to retrieve analytics data"
+
+  /dashboard:
+    get:
+      tags:
+        - Dashboard
+      summary: Get dashboard data (EXISTING - ENHANCED)
+      description: |
+        Retrieves dashboard overview data including statistics and items currently out.
+        
+        **Enhancement**: This existing endpoint is updated to properly include loan relationship
+        data with items currently out, ensuring borrower name and lent-at date are returned
+        (not "Unknown").
+        
+        **Query Parameters**: Supports optional search filtering (existing functionality).
+        
+      operationId: getDashboardData
+      
+      parameters:
+        - name: search
+          in: query
+          description: Optional search term to filter items
+          required: false
+          schema:
+            type: string
+          example: "laptop"
+      
+      responses:
+        '200':
+          description: Dashboard data successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardDataResponse'
+              example:
+                stats:
+                  totalItems: 18
+                  itemsOut: 5
+                  itemsAvailable: 10
+                itemsOut:
+                  - id: "a1b2c3d4-e5f6-7890-abcd-1234567890ab"
+                    name: "Cordless Drill"
+                    description: "DeWalt 20V cordless drill"
+                    category: "tools"
+                    status: "out"
+                    imageUrl: "http://localhost:3000/uploads/drill.jpg"
+                    currentLoan:
+                      id: "loan-123-456"
+                      borrower: "John Doe"
+                      lentAt: "2026-01-20T10:30:00.000Z"
+                      notes: "Project in garage"
+                  - id: "b2c3d4e5-f6g7-8901-bcde-234567890bcd"
+                    name: "Arduino Uno"
+                    description: "Microcontroller board"
+                    category: "electronics"
+                    status: "out"
+                    imageUrl: null
+                    currentLoan:
+                      id: "loan-234-567"
+                      borrower: "Jane Smith"
+                      lentAt: "2026-01-22T14:15:00.000Z"
+                      notes: null
+        
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    DashboardAnalyticsResponse:
+      type: object
+      required:
+        - statusDistribution
+        - categoryDistribution
+        - topBorrower
+      properties:
+        statusDistribution:
+          type: object
+          description: Count of items grouped by status
+          additionalProperties:
+            type: integer
+            minimum: 0
+          example:
+            available: 10
+            out: 5
+            maintenance: 2
+            retired: 1
+        
+        categoryDistribution:
+          type: object
+          description: Count of items grouped by category
+          additionalProperties:
+            type: integer
+            minimum: 0
+          example:
+            electronics: 8
+            tools: 7
+            books: 3
+        
+        topBorrower:
+          type: object
+          nullable: true
+          description: Borrower with the most items currently out (null if no items lent)
+          required:
+            - name
+            - count
+          properties:
+            name:
+              type: string
+              description: Name of the top borrower
+              minLength: 1
+              example: "John Doe"
+            count:
+              type: integer
+              description: Number of items currently borrowed
+              minimum: 1
+              example: 3
+
+    DashboardDataResponse:
+      type: object
+      required:
+        - stats
+        - itemsOut
+      properties:
+        stats:
+          type: object
+          required:
+            - totalItems
+            - itemsOut
+            - itemsAvailable
+          properties:
+            totalItems:
+              type: integer
+              minimum: 0
+              description: Total number of items in inventory
+            itemsOut:
+              type: integer
+              minimum: 0
+              description: Number of items currently lent out
+            itemsAvailable:
+              type: integer
+              minimum: 0
+              description: Number of items available for lending
+        
+        itemsOut:
+          type: array
+          description: List of items currently lent out, ordered by lentAt (earliest first)
+          items:
+            $ref: '#/components/schemas/EnhancedItemOut'
+
+    EnhancedItemOut:
+      type: object
+      required:
+        - id
+        - name
+        - category
+        - status
+        - currentLoan
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique item identifier
+          example: "a1b2c3d4-e5f6-7890-abcd-1234567890ab"
+        name:
+          type: string
+          description: Item name
+          example: "Cordless Drill"
+        description:
+          type: string
+          nullable: true
+          description: Item description
+          example: "DeWalt 20V cordless drill"
+        category:
+          type: string
+          description: Item category
+          example: "tools"
+        status:
+          type: string
+          enum: ["out"]
+          description: Item status (always 'out' for this endpoint)
+        imageUrl:
+          type: string
+          format: uri
+          nullable: true
+          description: URL to item image
+          example: "http://localhost:3000/uploads/drill.jpg"
+        currentLoan:
+          type: object
+          required:
+            - id
+            - borrower
+            - lentAt
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: Loan record identifier
+              example: "loan-123-456"
+            borrower:
+              type: string
+              description: Name of person currently borrowing the item
+              minLength: 1
+              example: "John Doe"
+            lentAt:
+              type: string
+              format: date-time
+              description: ISO 8601 timestamp when item was lent out
+              example: "2026-01-20T10:30:00.000Z"
+            notes:
+              type: string
+              nullable: true
+              description: Optional notes about the loan
+              example: "Project in garage"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error type
+          example: "Internal server error"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Failed to retrieve analytics data"
