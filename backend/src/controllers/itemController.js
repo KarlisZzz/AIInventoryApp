@@ -9,6 +9,7 @@
  */
 
 const itemService = require('../services/itemService');
+const dashboardService = require('../services/dashboardService');
 
 /**
  * Create a new item
@@ -296,8 +297,8 @@ async function getCategories(req, res, next) {
  */
 async function getDashboardData(req, res, next) {
   try {
-    // Get items currently lent out (T119)
-    const currentlyOut = await itemService.getCurrentlyLentItems();
+    // Get items currently lent out with borrower information (T007)
+    const currentlyOut = await dashboardService.getItemsCurrentlyOut();
     
     // Get all items with optional filtering
     const { status, category, search } = req.query;

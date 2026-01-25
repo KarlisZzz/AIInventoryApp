@@ -12,16 +12,16 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { useToast } from '../components/ToastContainer';
 import { getDashboardData, type DashboardData } from '../services/dashboardService';
 import { updateItem, deleteItem, type UpdateItemData } from '../services/itemService';
 import CurrentlyOutSection from '../components/CurrentlyOutSection';
-import SearchBar from '../components/SearchBar';
-import ItemList from '../components/ItemList';
 import ReturnDialog from '../components/ReturnDialog';
 import HistoryDialog from '../components/HistoryDialog';
 import LendDialog from '../components/LendDialog';
 import ItemForm from '../components/ItemForm';
+import { DashboardAnalytics } from '../components/DashboardAnalytics';
 import type { Item } from '../services/itemService';
 
 const DashboardPage = () => {
@@ -29,7 +29,6 @@ const DashboardPage = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   
   // Dialog states
   const [returnDialogItem, setReturnDialogItem] = useState<Item | null>(null);
@@ -40,13 +39,12 @@ const DashboardPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load dashboard data
-  const loadDashboard = useCallback(async (search?: string) => {
+  const loadDashboard = useCallback(async () => {
     try {
       setError(null);
       setIsLoading(true);
       
-      const filters = search ? { search } : undefined;
-      const data = await getDashboardData(filters);
+      const data = await getDashboardData();
       
       setDashboardData(data);
     } catch (err) {
@@ -62,12 +60,6 @@ const DashboardPage = () => {
     loadDashboard();
   }, [loadDashboard]);
 
-  // Handle search with debouncing (handled by SearchBar component)
-  const handleSearch = useCallback((query: string) => {
-    setSearchQuery(query);
-    loadDashboard(query);
-  }, [loadDashboard]);
-
   // Handle return item
   const handleReturn = async (item: Item) => {
     setReturnDialogItem(item);
@@ -77,7 +69,7 @@ const DashboardPage = () => {
     showSuccess(`Item "${returnDialogItem?.name}" returned successfully`);
     setReturnDialogItem(null);
     // Reload dashboard to reflect changes (T128)
-    await loadDashboard(searchQuery);
+    await loadDashboard();
   };
 
   // Handle view history
@@ -85,34 +77,11 @@ const DashboardPage = () => {
     setHistoryDialogItem(item);
   };
 
-  // Handle lend item (for items in the all items section)
-  const handleLend = (item: Item) => {
-    setLendDialogItem(item);
-  };
-
   const handleLendSuccess = async () => {
     showSuccess(`Item "${lendDialogItem?.name}" lent successfully`);
     setLendDialogItem(null);
     // Reload dashboard to reflect changes (T128)
-    await loadDashboard(searchQuery);
-  };
-
-  // Handle delete
-  const handleDelete = async (itemId: string) => {
-    try {
-      await deleteItem(itemId);
-      showSuccess('Item deleted successfully');
-      await loadDashboard(searchQuery);
-    } catch (err: any) {
-      const errorMsg = err.message || 'Failed to delete item';
-      showError(errorMsg);
-    }
-  };
-
-  // Handle edit
-  const handleEdit = (item: Item) => {
-    setEditingItem(item);
-    setShowEditForm(true);
+    await loadDashboard();
   };
 
   // Handle edit form submission
@@ -137,7 +106,7 @@ const DashboardPage = () => {
 
   // Handle edit form completion
   const handleEditFormComplete = async () => {
-    await loadDashboard(searchQuery);
+    await loadDashboard();
     setShowEditForm(false);
     setEditingItem(null);
   };
@@ -161,8 +130,14 @@ const DashboardPage = () => {
 
       {/* Statistics Cards */}
       {dashboardData && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="glass-card p-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 animate-fadeIn">
+          {/* Total Items Card - Clickable (T023, T024, T025, T029) */}
+          <Link 
+            to="/inventory"
+            className="glass-card p-4 cursor-pointer hover:ring-2 ring-blue-500/50 transition-all duration-200 animate-fadeIn"
+            aria-label="Navigate to inventory page"
+            style={{ animationDelay: '100ms' }}
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-slate-400 mb-1">Total Items</p>
@@ -177,9 +152,9 @@ const DashboardPage = () => {
                 </svg>
               </div>
             </div>
-          </div>
+          </Link>
 
-          <div className="glass-card p-4">
+          <div className="glass-card p-4 animate-fadeIn" style={{ animationDelay: '200ms' }}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-slate-400 mb-1">Currently Out</p>
@@ -196,7 +171,7 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          <div className="glass-card p-4">
+          <div className="glass-card p-4 animate-fadeIn" style={{ animationDelay: '300ms' }}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-slate-400 mb-1">Available</p>
@@ -215,31 +190,15 @@ const DashboardPage = () => {
         </div>
       )}
 
-      {/* Items Currently Out Section */}
-      <div className="mb-8">
-        <CurrentlyOutSection
-          items={dashboardData?.currentlyOut || []}
-          onReturn={handleReturn}
-          onViewHistory={handleViewHistory}
-          isLoading={isLoading}
-        />
+      {/* Dashboard Analytics Section */}
+      <div className="mb-8 animate-fadeIn" style={{ animationDelay: '400ms' }}>
+        <DashboardAnalytics />
       </div>
 
-      {/* All Items Section with Search */}
-      <div className="glass-card p-6">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-slate-200 mb-4">All Inventory Items</h2>
-          <SearchBar 
-            onSearch={handleSearch}
-            placeholder="Search by name, description, or category..."
-          />
-        </div>
-
-        <ItemList
-          items={dashboardData?.allItems || []}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onLend={handleLend}
+      {/* Items Currently Out Section */}
+      <div className="mb-8 animate-fadeIn" style={{ animationDelay: '500ms' }}>
+        <CurrentlyOutSection
+          items={dashboardData?.currentlyOut || []}
           onReturn={handleReturn}
           onViewHistory={handleViewHistory}
           isLoading={isLoading}

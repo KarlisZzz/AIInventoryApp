@@ -25,6 +25,19 @@ export interface DashboardData {
 }
 
 /**
+ * Dashboard analytics interface for pie charts and statistics
+ * @see specs/003-dashboard-improvements/contracts/dashboard-analytics-api.yaml
+ */
+export interface DashboardAnalytics {
+  statusDistribution: Record<string, number>;
+  categoryDistribution: Record<string, number>;
+  topBorrower: {
+    name: string;
+    count: number;
+  } | null;
+}
+
+/**
  * Get dashboard data
  * 
  * @param filters - Optional filters { status, category, search }
@@ -55,3 +68,19 @@ export async function getDashboardData(filters?: {
   const response = await apiClient.get<DashboardData>(url);
   return response.data;
 }
+
+/**
+ * Get dashboard analytics data
+ * 
+ * Retrieves aggregated analytics including status distribution,
+ * category distribution, and top borrower information.
+ * 
+ * @returns Promise<DashboardAnalytics>
+ * @see specs/003-dashboard-improvements/contracts/dashboard-analytics-api.yaml
+ * @see T012
+ */
+export async function fetchDashboardAnalytics(): Promise<DashboardAnalytics> {
+  const response = await apiClient.get<DashboardAnalytics>('/dashboard/analytics');
+  return response.data;
+}
+
