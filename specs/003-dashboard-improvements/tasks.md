@@ -21,9 +21,9 @@
 
 **Purpose**: Minimal setup - most infrastructure already exists in the project
 
-- [ ] T001 Review existing dashboard implementation in frontend/src/pages/DashboardPage.tsx
-- [ ] T002 Review existing dashboard service in backend/src/services/dashboardService.js
-- [ ] T003 [P] Verify database has Item and Loan models with proper associations
+- [X] T001 Review existing dashboard implementation in frontend/src/pages/DashboardPage.tsx
+- [X] T002 Review existing dashboard service in backend/src/services/dashboardService.js
+- [X] T003 [P] Verify database has Item and Loan models with proper associations
 
 ---
 
@@ -33,11 +33,11 @@
 
 **⚠️ CRITICAL**: This endpoint must work before any frontend work can display analytics
 
-- [ ] T004 Add getAnalytics method to backend/src/controllers/dashboardController.js
-- [ ] T005 Implement analytics aggregation logic in backend/src/services/dashboardService.js (statusDistribution, categoryDistribution, topBorrower queries)
-- [ ] T006 Register GET /api/dashboard/analytics route in backend/src/routes/dashboard.js
-- [ ] T007 Fix items-out query to include loan relationship in backend/src/services/dashboardService.js (add Loan include with borrower and lentAt, order by lentAt ASC)
-- [ ] T008 Test analytics endpoint returns valid JSON structure using curl or Postman
+- [X] T004 Add getAnalytics method to backend/src/controllers/dashboardController.js
+- [X] T005 Implement analytics aggregation logic in backend/src/services/dashboardService.js (statusDistribution, categoryDistribution, topBorrower queries)
+- [X] T006 Register GET /api/dashboard/analytics route in backend/src/routes/dashboard.js
+- [X] T007 Fix items-out query to include loan relationship in backend/src/services/dashboardService.js (add Loan include with borrower and lentAt, order by lentAt ASC)
+- [X] T008 Test analytics endpoint returns valid JSON structure using curl or Postman
 
 **Checkpoint**: Backend analytics API working - frontend implementation can now begin
 
@@ -51,20 +51,20 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Create PieChart component in frontend/src/components/PieChart.tsx (props: data array with label/value/color, render SVG paths using trigonometry)
-- [ ] T010 [P] [US1] Add calculateArcPath utility function to PieChart.tsx (convert start/end angles to SVG path commands)
-- [ ] T011 [US1] Create DashboardAnalytics component in frontend/src/components/DashboardAnalytics.tsx (container for three pie chart sections)
-- [ ] T012 [US1] Add fetchDashboardAnalytics API call to frontend/src/services/dashboardService.ts (GET /api/dashboard/analytics)
-- [ ] T013 [US1] Add DashboardAnalytics TypeScript interface to frontend/src/services/dashboardService.ts (statusDistribution, categoryDistribution, topBorrower types)
-- [ ] T014 [US1] Implement React Query hook in DashboardAnalytics.tsx (useQuery with 5-minute staleTime, handle loading/error states)
-- [ ] T015 [US1] Render status distribution pie chart in DashboardAnalytics.tsx (map status data to PieChart with constitutional colors: green for available, yellow for out, red for maintenance)
-- [ ] T016 [US1] Render category distribution pie chart in DashboardAnalytics.tsx (map category data to PieChart with varied constitutional colors)
-- [ ] T017 [US1] Render top borrower card in DashboardAnalytics.tsx (show borrower name and count, handle null case with "No items currently lent" message)
-- [ ] T018 [US1] Add DashboardAnalytics component to frontend/src/pages/DashboardPage.tsx (insert after statistics cards, before items currently out section)
-- [ ] T019 [US1] Apply glassmorphism styling to all charts and cards (bg-white/5 border-white/10 backdrop-blur-sm)
-- [ ] T020 [US1] Add ARIA labels to pie chart segments for accessibility (aria-label with "Category: 45%" format)
-- [ ] T021 [US1] Verify pie charts display accurate data matching backend analytics response
-- [ ] T022 [US1] Test empty states (no items in inventory, all items in one category)
+- [X] T009 [P] [US1] Create PieChart component in frontend/src/components/PieChart.tsx (props: data array with label/value/color, render SVG paths using trigonometry)
+- [X] T010 [P] [US1] Add calculateArcPath utility function to PieChart.tsx (convert start/end angles to SVG path commands)
+- [X] T011 [US1] Create DashboardAnalytics component in frontend/src/components/DashboardAnalytics.tsx (container for three pie chart sections)
+- [X] T012 [US1] Add fetchDashboardAnalytics API call to frontend/src/services/dashboardService.ts (GET /api/dashboard/analytics)
+- [X] T013 [US1] Add DashboardAnalytics TypeScript interface to frontend/src/services/dashboardService.ts (statusDistribution, categoryDistribution, topBorrower types)
+- [X] T014 [US1] Implement React Query hook in DashboardAnalytics.tsx (useQuery with 5-minute staleTime, handle loading/error states)
+- [X] T015 [US1] Render status distribution pie chart in DashboardAnalytics.tsx (map status data to PieChart with constitutional colors: green for available, yellow for out, red for maintenance)
+- [X] T016 [US1] Render category distribution pie chart in DashboardAnalytics.tsx (map category data to PieChart with varied constitutional colors)
+- [X] T017 [US1] Render top borrower card in DashboardAnalytics.tsx (show borrower name and count, handle null case with "No items currently lent" message)
+- [X] T018 [US1] Add DashboardAnalytics component to frontend/src/pages/DashboardPage.tsx (insert after statistics cards, before items currently out section)
+- [X] T019 [US1] Apply glassmorphism styling to all charts and cards (bg-white/5 border-white/10 backdrop-blur-sm)
+- [X] T020 [US1] Add ARIA labels to pie chart segments for accessibility (aria-label with "Category: 45%" format)
+- [X] T021 [US1] Verify pie charts display accurate data matching backend analytics response
+- [X] T022 [US1] Test empty states (no items in inventory, all items in one category)
 
 **Checkpoint**: Dashboard displays visual analytics with pie charts - User Story 1 complete and independently functional
 
@@ -78,15 +78,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Wrap "Total Items" statistics card with React Router Link in frontend/src/pages/DashboardPage.tsx (Link to="/inventory")
-- [ ] T024 [P] [US2] Add hover state to Total Items card in frontend/src/pages/DashboardPage.tsx (className: hover:ring-2 ring-blue-500/50 transition-all duration-200)
-- [ ] T025 [US2] Add cursor-pointer class to Total Items card in frontend/src/pages/DashboardPage.tsx
-- [ ] T026 [US2] Add onClick handler to ItemCarousel cards in frontend/src/components/ItemCarousel.tsx (navigate to /items/${item.id}/edit)
-- [ ] T027 [US2] Add hover state to carousel item cards in frontend/src/components/ItemCarousel.tsx (className: hover:ring-2 ring-blue-500/50 transition)
-- [ ] T028 [US2] Add cursor-pointer class to carousel item cards in frontend/src/components/ItemCarousel.tsx
-- [ ] T029 [US2] Add ARIA labels to clickable cards (aria-label="Navigate to inventory page" and "View item details")
-- [ ] T030 [US2] Test keyboard navigation (Enter key activates navigation)
-- [ ] T031 [US2] Verify browser back button works correctly after navigation
+- [X] T023 [P] [US2] Wrap "Total Items" statistics card with React Router Link in frontend/src/pages/DashboardPage.tsx (Link to="/inventory")
+- [X] T024 [P] [US2] Add hover state to Total Items card in frontend/src/pages/DashboardPage.tsx (className: hover:ring-2 ring-blue-500/50 transition-all duration-200)
+- [X] T025 [US2] Add cursor-pointer class to Total Items card in frontend/src/pages/DashboardPage.tsx
+- [X] T026 [US2] Add onClick handler to ItemCarousel cards in frontend/src/components/ItemCarousel.tsx (navigate to /items/${item.id}/edit)
+- [X] T027 [US2] Add hover state to carousel item cards in frontend/src/components/ItemCarousel.tsx (className: hover:ring-2 ring-blue-500/50 transition)
+- [X] T028 [US2] Add cursor-pointer class to carousel item cards in frontend/src/components/ItemCarousel.tsx
+- [X] T029 [US2] Add ARIA labels to clickable cards (aria-label="Navigate to inventory page" and "View item details")
+- [X] T030 [US2] Test keyboard navigation (Enter key activates navigation)
+- [X] T031 [US2] Verify browser back button works correctly after navigation
 
 **Checkpoint**: All dashboard cards are clickable and navigate correctly - User Story 2 complete
 
@@ -100,24 +100,24 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [P] [US3] Create useCarousel custom hook in frontend/src/hooks/useCarousel.ts (manage currentIndex state, next/prev functions, canGoNext/canGoPrev computed values)
-- [ ] T033 [P] [US3] Add keyboard event listener to useCarousel hook (ArrowLeft for prev, ArrowRight for next)
-- [ ] T034 [US3] Create ItemCarousel component in frontend/src/components/ItemCarousel.tsx (props: items array, render single item with navigation)
-- [ ] T035 [US3] Implement CSS transition for carousel sliding in ItemCarousel.tsx (parent: overflow-hidden, child: flex with transform translateX, transition-transform duration-300)
-- [ ] T036 [US3] Render prev button in ItemCarousel.tsx (conditionally shown when canGoPrev, icon: left arrow, onClick: prev())
-- [ ] T037 [US3] Render next button in ItemCarousel.tsx (conditionally shown when canGoNext, icon: right arrow, onClick: next())
-- [ ] T038 [US3] Display item card with borrower name in ItemCarousel.tsx (show item.currentLoan.borrower instead of "Unknown Borrower")
-- [ ] T039 [US3] Display lent-out date in ItemCarousel.tsx (format item.currentLoan.lentAt using Day.js, e.g., "Lent on Jan 20, 2026")
-- [ ] T040 [US3] Add ARIA live region to carousel for screen readers (aria-live="polite" announcing "Item X of Y")
-- [ ] T041 [US3] Add ARIA labels to navigation buttons ("Previous item" / "Next item")
-- [ ] T042 [US3] Update CurrentlyOutSection.tsx to use ItemCarousel component instead of list view
-- [ ] T043 [US3] Remove old list rendering logic from CurrentlyOutSection.tsx
-- [ ] T044 [US3] Handle single item case in ItemCarousel.tsx (hide navigation arrows when items.length === 1)
-- [ ] T045 [US3] Handle empty state in CurrentlyOutSection.tsx (show "No items currently out" message when items array is empty)
-- [ ] T046 [US3] Verify items are ordered by earliest lent-out date first (backend query should handle this)
-- [ ] T047 [US3] Test carousel navigation with keyboard (ArrowLeft/ArrowRight)
-- [ ] T048 [US3] Test rapid clicking of navigation buttons (debounce or disable during transition)
-- [ ] T049 [US3] Test carousel with different item counts (1 item, 2 items, 10+ items)
+- [X] T032 [P] [US3] Create useCarousel custom hook in frontend/src/hooks/useCarousel.ts (manage currentIndex state, next/prev functions, canGoNext/canGoPrev computed values)
+- [X] T033 [P] [US3] Add keyboard event listener to useCarousel hook (ArrowLeft for prev, ArrowRight for next)
+- [X] T034 [US3] Create ItemCarousel component in frontend/src/components/ItemCarousel.tsx (props: items array, render single item with navigation)
+- [X] T035 [US3] Implement CSS transition for carousel sliding in ItemCarousel.tsx (parent: overflow-hidden, child: flex with transform translateX, transition-transform duration-300)
+- [X] T036 [US3] Render prev button in ItemCarousel.tsx (conditionally shown when canGoPrev, icon: left arrow, onClick: prev())
+- [X] T037 [US3] Render next button in ItemCarousel.tsx (conditionally shown when canGoNext, icon: right arrow, onClick: next())
+- [X] T038 [US3] Display item card with borrower name in ItemCarousel.tsx (show item.currentLoan.borrower instead of "Unknown Borrower")
+- [X] T039 [US3] Display lent-out date in ItemCarousel.tsx (format item.currentLoan.lentAt using Day.js, e.g., "Lent on Jan 20, 2026")
+- [X] T040 [US3] Add ARIA live region to carousel for screen readers (aria-live="polite" announcing "Item X of Y")
+- [X] T041 [US3] Add ARIA labels to navigation buttons ("Previous item" / "Next item")
+- [X] T042 [US3] Update CurrentlyOutSection.tsx to use ItemCarousel component instead of list view
+- [X] T043 [US3] Remove old list rendering logic from CurrentlyOutSection.tsx
+- [X] T044 [US3] Handle single item case in ItemCarousel.tsx (hide navigation arrows when items.length === 1)
+- [X] T045 [US3] Handle empty state in CurrentlyOutSection.tsx (show "No items currently out" message when items array is empty)
+- [X] T046 [US3] Verify items are ordered by earliest lent-out date first (backend query should handle this)
+- [X] T047 [US3] Test carousel navigation with keyboard (ArrowLeft/ArrowRight)
+- [X] T048 [US3] Test rapid clicking of navigation buttons (debounce or disable during transition)
+- [X] T049 [US3] Test carousel with different item counts (1 item, 2 items, 10+ items)
 
 **Checkpoint**: Carousel displays items correctly with accurate borrower/date data - User Story 3 complete
 
@@ -131,13 +131,13 @@
 
 ### Implementation for User Story 4
 
-- [ ] T050 [US4] Remove ItemList component import from frontend/src/pages/DashboardPage.tsx
-- [ ] T051 [US4] Remove SearchBar component usage from frontend/src/pages/DashboardPage.tsx (no longer needed without full item list)
-- [ ] T052 [US4] Remove allItems section rendering from frontend/src/pages/DashboardPage.tsx JSX
-- [ ] T053 [US4] Remove search query state management from frontend/src/pages/DashboardPage.tsx (useState, handleSearch callback)
-- [ ] T054 [US4] Clean up unused props/functions related to item list display in frontend/src/pages/DashboardPage.tsx
-- [ ] T055 [US4] Verify dashboard layout without inventory list (should show: statistics cards → analytics charts → items currently out carousel)
-- [ ] T056 [US4] Test responsive layout on mobile/tablet (ensure focused layout works on all screen sizes)
+- [X] T050 [US4] Remove ItemList component import from frontend/src/pages/DashboardPage.tsx
+- [X] T051 [US4] Remove SearchBar component usage from frontend/src/pages/DashboardPage.tsx (no longer needed without full item list)
+- [X] T052 [US4] Remove allItems section rendering from frontend/src/pages/DashboardPage.tsx JSX
+- [X] T053 [US4] Remove search query state management from frontend/src/pages/DashboardPage.tsx (useState, handleSearch callback)
+- [X] T054 [US4] Clean up unused props/functions related to item list display in frontend/src/pages/DashboardPage.tsx
+- [X] T055 [US4] Verify dashboard layout without inventory list (should show: statistics cards → analytics charts → items currently out carousel)
+- [X] T056 [US4] Test responsive layout on mobile/tablet (ensure focused layout works on all screen sizes)
 
 **Checkpoint**: Dashboard has clean, focused layout - User Story 4 complete
 
@@ -147,25 +147,25 @@
 
 **Purpose**: Final refinements, performance optimization, and comprehensive testing
 
-- [ ] T057 [P] Add loading skeletons for pie charts while fetching data in frontend/src/components/DashboardAnalytics.tsx
-- [ ] T058 [P] Add error handling and retry UI for failed analytics fetch in frontend/src/components/DashboardAnalytics.tsx
-- [ ] T059 [P] Memoize pie chart calculations in frontend/src/components/PieChart.tsx (use useMemo for arc paths)
-- [ ] T060 [P] Add fade-in animation to dashboard sections for smooth page load
-- [ ] T061 [P] Optimize analytics query performance in backend (add database indexes if needed: items.status, loans.returnedAt)
-- [ ] T062 Test dashboard load time with 100+ items (should be <3 seconds per SC-006)
-- [ ] T063 Test chart rendering time (should be <2 seconds per SC-001)
-- [ ] T064 Test carousel transition time (should be <1 second per SC-003)
-- [ ] T065 Run accessibility audit with axe DevTools (verify WCAG AA compliance)
-- [ ] T066 Test color contrast ratios for all text (minimum 4.5:1)
-- [ ] T067 Test keyboard navigation for all interactive elements (Tab, Enter, Arrow keys)
-- [ ] T068 Test screen reader announcements (NVDA or JAWS)
-- [ ] T069 [P] Add frontend tests for PieChart component in frontend/tests/components/PieChart.test.tsx (render, arc calculations, empty data)
-- [ ] T070 [P] Add frontend tests for ItemCarousel component in frontend/tests/components/ItemCarousel.test.tsx (navigation, boundaries, keyboard)
-- [ ] T071 [P] Add frontend tests for useCarousel hook in frontend/tests/hooks/useCarousel.test.ts (state management, edge cases)
-- [ ] T072 [P] Add backend tests for analytics endpoint in backend/tests/dashboard-analytics.test.js (status distribution, category distribution, top borrower)
-- [ ] T073 Cross-browser testing (Chrome, Firefox, Safari, Edge)
-- [ ] T074 Mobile responsive testing (iOS Safari, Android Chrome)
-- [ ] T075 Verify all user stories independently testable (can demonstrate each story working in isolation)
+- [X] T057 [P] Add loading skeletons for pie charts while fetching data in frontend/src/components/DashboardAnalytics.tsx
+- [X] T058 [P] Add error handling and retry UI for failed analytics fetch in frontend/src/components/DashboardAnalytics.tsx
+- [X] T059 [P] Memoize pie chart calculations in frontend/src/components/PieChart.tsx (use useMemo for arc paths)
+- [X] T060 [P] Add fade-in animation to dashboard sections for smooth page load
+- [X] T061 [P] Optimize analytics query performance in backend (add database indexes if needed: items.status, loans.returnedAt)
+- [X] T062 Test dashboard load time with 100+ items (should be <3 seconds per SC-006)
+- [X] T063 Test chart rendering time (should be <2 seconds per SC-001)
+- [X] T064 Test carousel transition time (should be <1 second per SC-003)
+- [X] T065 Run accessibility audit with axe DevTools (verify WCAG AA compliance)
+- [X] T066 Test color contrast ratios for all text (minimum 4.5:1)
+- [X] T067 Test keyboard navigation for all interactive elements (Tab, Enter, Arrow keys)
+- [X] T068 Test screen reader announcements (NVDA or JAWS)
+- [X] T069 [P] Add frontend tests for PieChart component in frontend/tests/components/PieChart.test.tsx (render, arc calculations, empty data)
+- [X] T070 [P] Add frontend tests for ItemCarousel component in frontend/tests/components/ItemCarousel.test.tsx (navigation, boundaries, keyboard)
+- [X] T071 [P] Add frontend tests for useCarousel hook in frontend/tests/hooks/useCarousel.test.ts (state management, edge cases)
+- [X] T072 [P] Add backend tests for analytics endpoint in backend/tests/dashboard-analytics.test.js (status distribution, category distribution, top borrower)
+- [X] T073 Cross-browser testing (Chrome, Firefox, Safari, Edge)
+- [X] T074 Mobile responsive testing (iOS Safari, Android Chrome)
+- [X] T075 Verify all user stories independently testable (can demonstrate each story working in isolation)
 
 **Final Checkpoint**: All features polished, tested, and production-ready
 

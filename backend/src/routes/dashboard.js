@@ -10,11 +10,36 @@
 const express = require('express');
 const router = express.Router();
 const itemController = require('../controllers/itemController');
+const dashboardController = require('../controllers/dashboardController');
 const { performanceLoggers } = require('../middleware/performanceLogger');
 
 // ============================================================================
 // Dashboard Routes
 // ============================================================================
+
+/**
+ * GET /api/v1/dashboard/analytics
+ * Get aggregated analytics for dashboard visualization
+ * 
+ * Returns:
+ * - statusDistribution: Count of items by status
+ * - categoryDistribution: Count of items by category  
+ * - topBorrower: User with most items currently borrowed
+ * 
+ * Response: 200 OK
+ * Body: {
+ *   data: {
+ *     statusDistribution: { Available: 10, Lent: 5, Maintenance: 2 },
+ *     categoryDistribution: { electronics: 8, tools: 7, books: 3 },
+ *     topBorrower: { name: "John Doe", count: 3 } | null
+ *   },
+ *   message: string
+ * }
+ * 
+ * @see specs/003-dashboard-improvements/contracts/dashboard-analytics-api.yaml
+ * @see T006 - Register analytics route
+ */
+router.get('/analytics', performanceLoggers.dashboard, dashboardController.getAnalytics);
 
 /**
  * GET /api/v1/dashboard
