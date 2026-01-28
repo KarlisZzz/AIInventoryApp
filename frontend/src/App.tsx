@@ -5,6 +5,10 @@ import Layout from './components/Layout';
 import DashboardPage from './pages/DashboardPage';
 import InventoryPage from './pages/InventoryPage';
 import ItemDetail from './pages/ItemDetail';
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import CategoryManagement from './pages/admin/CategoryManagement';
+import UserManagement from './pages/admin/UserManagement';
 
 /**
  * Main App Component
@@ -16,6 +20,9 @@ import ItemDetail from './pages/ItemDetail';
  * - / : Dashboard (summary and quick actions) - User Story 5
  * - /inventory : Inventory list with search and filters
  * - /inventory/:itemId : Item detail page with lending history
+ * - /admin : Admin dashboard (User Story 3)
+ * - /admin/categories : Admin category management (User Story 1)
+ * - /admin/users : Admin user management (User Story 2)
  * 
  * @see T130, T154, T163
  */
@@ -45,6 +52,13 @@ function App() {
                   </a>
                 </div>
               } />
+            </Route>
+            
+            {/* Admin Routes with AdminLayout */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="categories" element={<CategoryManagement />} />
+              <Route path="users" element={<UserManagement />} />
             </Route>
           </Routes>
         </BrowserRouter>

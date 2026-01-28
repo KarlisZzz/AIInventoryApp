@@ -23,6 +23,8 @@ const { sequelize, initializeDatabase, closeDatabase } = require('../config/data
 const Item = require('./Item');
 const User = require('./User');
 const LendingLog = require('./LendingLog');
+const Category = require('./Category');
+const AdminAuditLog = require('./AdminAuditLog');
 
 /**
  * Define Associations
@@ -31,7 +33,22 @@ const LendingLog = require('./LendingLog');
  * circular dependency issues.
  */
 
+// Category associations
+Category.hasMany(Item, {
+  foreignKey: 'categoryId',
+  as: 'items',
+  onDelete: 'RESTRICT',     // Cannot delete category if items reference it
+  onUpdate: 'CASCADE',
+});
+
 // Item associations
+Item.belongsTo(Category, {
+  foreignKey: 'categoryId',
+  as: 'category',
+  onDelete: 'RESTRICT',
+  onUpdate: 'CASCADE',
+});
+
 Item.hasMany(LendingLog, {
   foreignKey: 'itemId',
   as: 'lendingLogs',
@@ -41,9 +58,16 @@ Item.hasMany(LendingLog, {
 
 // User associations
 User.hasMany(LendingLog, {
-  foreignKey: 'userId',
+  foreignKey: 'borrowerId',  // Updated to match database schema
   as: 'lendingLogs',
   onDelete: 'RESTRICT',     // Cannot delete user if lending logs exist
+  onUpdate: 'CASCADE',
+});
+
+User.hasMany(AdminAuditLog, {
+  foreignKey: 'adminUserId',
+  as: 'auditLogs',
+  onDelete: 'RESTRICT',     // Cannot delete admin if audit logs exist
   onUpdate: 'CASCADE',
 });
 
@@ -56,8 +80,16 @@ LendingLog.belongsTo(Item, {
 });
 
 LendingLog.belongsTo(User, {
-  foreignKey: 'userId',
+  foreignKey: 'borrowerId',  // Updated to match database schema
   as: 'user',
+  onDelete: 'RESTRICT',
+  onUpdate: 'CASCADE',
+});
+
+// AdminAuditLog associations
+AdminAuditLog.belongsTo(User, {
+  foreignKey: 'adminUserId',
+  as: 'admin',
   onDelete: 'RESTRICT',
   onUpdate: 'CASCADE',
 });
@@ -108,6 +140,8 @@ async function testConnection() {
     console.log('  - Item');
     console.log('  - User');
     console.log('  - LendingLog');
+    console.log('  - Category');
+    console.log('  - AdminAuditLog');
     console.log('✓ Associations configured');
     return true;
   } catch (error) {
@@ -127,6 +161,8 @@ module.exports = {
   Item,
   User,
   LendingLog,
+  Category,
+  AdminAuditLog,
   
   // Utilities
   syncModels,

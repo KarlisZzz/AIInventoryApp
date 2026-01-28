@@ -9,7 +9,7 @@
  * @see specs/003-dashboard-improvements/contracts/dashboard-analytics-api.yaml
  */
 
-const { Item, LendingLog, User } = require('../models');
+const { Item, LendingLog, User, Category } = require('../models');
 const { Op } = require('sequelize');
 const { sequelize } = require('../config/database');
 
@@ -50,16 +50,23 @@ async function getAnalytics() {
     const categoryDistribution = {};
     const categoryResults = await Item.findAll({
       attributes: [
-        'category',
-        [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+        [sequelize.col('category.name'), 'categoryName'],
+        [sequelize.fn('COUNT', sequelize.col('Item.id')), 'count']
       ],
-      group: ['category'],
+      include: [{
+        model: Category,
+        as: 'category',
+        attributes: [],
+        required: false // Include items without category as null
+      }],
+      group: ['category.id', 'category.name'],
       raw: true
     });
     
     // Convert array to object { category: count }
     categoryResults.forEach(row => {
-      categoryDistribution[row.category] = parseInt(row.count, 10);
+      const categoryName = row.categoryName || 'Uncategorized';
+      categoryDistribution[categoryName] = parseInt(row.count, 10);
     });
     
     // Query 3: Top borrower (user with most items currently borrowed)
@@ -76,7 +83,7 @@ async function getAnalytics() {
         where: { status: 'Lent' },
         required: true
       }],
-      where: { dateReturned: null },
+      where: { returnedAt: null },
       group: ['borrowerName'],
       order: [[sequelize.fn('COUNT', sequelize.col('LendingLog.id')), 'DESC']],
       limit: 1,
@@ -122,8 +129,8 @@ async function getItemsCurrentlyOut() {
       include: [{
         model: LendingLog,
         as: 'lendingLogs',
-        where: { dateReturned: null },
-        required: true,
+        where: { returnedAt: null },
+        required: false,  // Changed to false to prevent 500 error when no items exist
         separate: false
       }]
     });
@@ -132,7 +139,7 @@ async function getItemsCurrentlyOut() {
     const itemsWithLoan = items.map(item => {
       const itemData = item.toJSON();
       const currentLog = itemData.lendingLogs && itemData.lendingLogs.length > 0
-        ? itemData.lendingLogs.sort((a, b) => new Date(b.dateLent) - new Date(a.dateLent))[0]
+        ? itemData.lendingLogs.sort((a, b) => new Date(b.lentAt) - new Date(a.lentAt))[0]
         : null;
       
       return {
@@ -140,8 +147,8 @@ async function getItemsCurrentlyOut() {
         currentLoan: currentLog ? {
           id: currentLog.id,
           borrower: currentLog.borrowerName,
-          lentAt: currentLog.dateLent,
-          notes: currentLog.conditionNotes || null
+          lentAt: currentLog.lentAt,
+          notes: currentLog.notes || null
         } : null,
         // Remove the lendingLogs array to keep response clean
         lendingLogs: undefined

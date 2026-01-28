@@ -11,6 +11,8 @@
 import { useState, useEffect } from 'react';
 import type { Item, CreateItemData, UpdateItemData } from '../services/itemService';
 import { uploadItemImage, deleteItemImage } from '../services/itemService';
+import { getCategories } from '../services/adminApi';
+import type { CategoryWithCount } from '../types/admin';
 import ImageUpload from './ImageUpload';
 
 interface ItemFormProps {
@@ -31,6 +33,25 @@ export default function ItemForm({ item, onSubmit, onCancel, onComplete, isLoadi
   const [shouldDeleteImage, setShouldDeleteImage] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<CategoryWithCount[]>([]);
+  const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
+
+  // Load categories on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setIsCategoriesLoading(true);
+        const data = await getCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      } finally {
+        setIsCategoriesLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // Populate form if editing existing item
   useEffect(() => {
@@ -251,27 +272,62 @@ export default function ItemForm({ item, onSubmit, onCancel, onComplete, isLoadi
         <label htmlFor="category" className="block text-sm font-medium text-slate-200 mb-1">
           Category <span className="text-red-400">*</span>
         </label>
-        <input
-          type="text"
-          id="category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          disabled={isLoading}
-          className={`w-full px-3 py-2 border rounded-lg bg-slate-800/50 text-slate-200
-                     focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors
-                     disabled:opacity-50 disabled:cursor-not-allowed
-                     ${errors.category ? 'border-red-500' : 'border-slate-600'}`}
-          placeholder="e.g., Hardware, Tools, Kitchen"
-          maxLength={50}
-          aria-invalid={!!errors.category}
-          aria-describedby={errors.category ? 'category-error' : undefined}
-        />
+        {isCategoriesLoading ? (
+          <div className="w-full px-3 py-2 border border-slate-600 rounded-lg bg-slate-800/50 text-slate-400">
+            Loading categories...
+          </div>
+        ) : categories.length > 0 ? (
+          <select
+            id="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            disabled={isLoading}
+            className={`w-full px-3 py-2 border rounded-lg bg-slate-800/50 text-slate-200
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors
+                       disabled:opacity-50 disabled:cursor-not-allowed
+                       ${errors.category ? 'border-red-500' : 'border-slate-600'}`}
+            aria-invalid={!!errors.category}
+            aria-describedby={errors.category ? 'category-error' : undefined}
+          >
+            <option value="">Select a category</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.name}>
+                {cat.name} ({cat.itemCount} items)
+              </option>
+            ))}
+          </select>
+        ) : (
+          <div className="space-y-2">
+            <input
+              type="text"
+              id="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              disabled={isLoading}
+              className={`w-full px-3 py-2 border rounded-lg bg-slate-800/50 text-slate-200
+                         focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors
+                         disabled:opacity-50 disabled:cursor-not-allowed
+                         ${errors.category ? 'border-red-500' : 'border-slate-600'}`}
+              placeholder="e.g., Hardware, Tools, Kitchen"
+              maxLength={50}
+              aria-invalid={!!errors.category}
+              aria-describedby={errors.category ? 'category-error' : undefined}
+            />
+            <p className="text-xs text-amber-400">
+              No categories available. Enter a category name to create a new one.
+            </p>
+          </div>
+        )}
         {errors.category && (
           <p id="category-error" className="mt-1 text-sm text-red-400">
             {errors.category}
           </p>
         )}
-        <p className="mt-1 text-xs text-slate-400">{category.length}/50 characters</p>
+        {!isCategoriesLoading && categories.length > 0 && (
+          <p className="mt-1 text-xs text-slate-400">
+            Select from {categories.length} existing categor{categories.length !== 1 ? 'ies' : 'y'}
+          </p>
+        )}
       </div>
 
       {/* Image Upload Field (T021) */}

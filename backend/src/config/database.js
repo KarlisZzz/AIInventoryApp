@@ -10,15 +10,16 @@
 const { Sequelize } = require('sequelize');
 const path = require('path');
 
-// Database file path - default to backend/data/inventory.db
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../../data/inventory.db');
+// Use in-memory database for tests, file-based for everything else
+const isTest = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !== undefined;
+const DB_PATH = isTest ? path.join(__dirname, '../../data/test.db') : (process.env.DB_PATH || path.join(__dirname, '../../data/inventory.db'));
 
 // Sequelize instance configuration
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: DB_PATH,
   
-  // Logging - enable in development, disable in production
+  // Logging - enable in development, disable in production and tests
   logging: process.env.NODE_ENV === 'development' ? console.log : false,
   
   // Connection pool configuration (SQLite uses single connection)

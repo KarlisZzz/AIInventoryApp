@@ -16,6 +16,20 @@ const { sequelize } = require('../../config/database');
 const Item = require('../../models/Item');
 const User = require('../../models/User');
 const LendingLog = require('../../models/LendingLog');
+const Category = require('../../models/Category');
+
+/**
+ * Sample Categories
+ */
+const sampleCategories = [
+  { name: 'Hardware' },
+  { name: 'Accessories' },
+  { name: 'Presentation' },
+  { name: 'Office Equipment' },
+  { name: 'Tablets' },
+  { name: 'Office Supplies' },
+  { name: 'Storage' },
+];
 
 /**
  * Sample Items (10 items across various categories)
@@ -128,9 +142,24 @@ async function seedDatabase() {
     await LendingLog.destroy({ where: {}, transaction });
     await Item.destroy({ where: {}, transaction });
     await User.destroy({ where: {}, transaction });
+    await Category.destroy({ where: {}, transaction });
     console.log('✅ Existing data cleared\n');
 
-    // 2. Insert Users
+    // 2. Insert Categories
+    console.log('🏷️  Creating categories...');
+    const categories = await Category.bulkCreate(sampleCategories, {
+      transaction,
+      returning: true,
+    });
+    console.log(`✅ Created ${categories.length} categories\n`);
+
+    // Create a map of category name to category ID for linking items
+    const categoryMap = {};
+    categories.forEach(cat => {
+      categoryMap[cat.name] = cat.id;
+    });
+
+    // 3. Insert Users
     console.log('👥 Creating users...');
     const users = await User.bulkCreate(sampleUsers, {
       transaction,
@@ -138,15 +167,23 @@ async function seedDatabase() {
     });
     console.log(`✅ Created ${users.length} users\n`);
 
-    // 3. Insert Items
+    // 4. Insert Items with category links
     console.log('📦 Creating items...');
-    const items = await Item.bulkCreate(sampleItems, {
+    // Map items to use categoryId instead of category name
+    const itemsWithCategoryIds = sampleItems.map(item => ({
+      name: item.name,
+      description: item.description,
+      categoryId: categoryMap[item.category],
+      status: item.status,
+    }));
+    
+    const items = await Item.bulkCreate(itemsWithCategoryIds, {
       transaction,
       returning: true,
     });
-    console.log(`✅ Created ${items.length} items\n`);
+    console.log(`✅ Created ${items.length} items (linked to categories)\n`);
 
-    // 4. Create sample lending logs for "Lent" items (with denormalized borrower data per FR-016)
+    // 5. Create sample lending logs for "Lent" items (with denormalized borrower data per FR-016)
     console.log('📝 Creating lending logs...');
     
     const lentItems = items.filter(item => item.status === 'Lent');
@@ -156,14 +193,17 @@ async function seedDatabase() {
       const item = lentItems[i];
       const user = users[i % users.length]; // Cycle through users
       
+      const lender = users[0]; // Use first user as admin/lender
       lendingLogs.push({
         itemId: item.id,
-        userId: user.id,
+        borrowerId: user.id,
         borrowerName: user.name,           // Denormalized per FR-016
         borrowerEmail: user.email,         // Denormalized per FR-016
-        dateLent: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Random date within last 7 days
-        dateReturned: null,                 // Still out
-        conditionNotes: 'Item in good condition at lending time',
+        lentById: lender.id,
+        lentByName: lender.name,
+        lentAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Random date within last 7 days
+        returnedAt: null,                 // Still out
+        notes: 'Item in good condition at lending time',
       });
     }
 
@@ -172,7 +212,7 @@ async function seedDatabase() {
       console.log(`✅ Created ${lendingLogs.length} lending logs\n`);
     }
 
-    // 5. Create a few historical (returned) lending logs
+    // 6. Create a few historical (returned) lending logs
     console.log('📜 Creating historical lending logs...');
     
     const availableItems = items.filter(item => item.status === 'Available').slice(0, 3);
@@ -184,14 +224,20 @@ async function seedDatabase() {
       const dateLent = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
       const dateReturned = new Date(dateLent.getTime() + 7 * 24 * 60 * 60 * 1000); // Returned 7 days later
       
+      const lender = users[0]; // Use first user as admin/lender
+      const returner = users[0]; // Same person processes return
       historicalLogs.push({
         itemId: item.id,
-        userId: user.id,
+        borrowerId: user.id,
         borrowerName: user.name,           // Denormalized per FR-016
         borrowerEmail: user.email,         // Denormalized per FR-016
-        dateLent,
-        dateReturned,
-        conditionNotes: 'Item returned in excellent condition. No issues reported.',
+        lentById: lender.id,
+        lentByName: lender.name,
+        lentAt: dateLent,
+        returnedAt: dateReturned,
+        returnedById: returner.id,
+        returnedByName: returner.name,
+        notes: 'Item returned in excellent condition. No issues reported.',
       });
     }
 
@@ -200,13 +246,14 @@ async function seedDatabase() {
       console.log(`✅ Created ${historicalLogs.length} historical lending logs\n`);
     }
 
-    // 6. Commit transaction
+    // 7. Commit transaction
     await transaction.commit();
 
-    // 7. Summary
+    // 8. Summary
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🎉 Database seeded successfully!\n');
     console.log('Summary:');
+    console.log(`  • ${categories.length} categories created`);
     console.log(`  • ${users.length} users created`);
     console.log(`  • ${items.length} items created`);
     console.log(`    - ${items.filter(i => i.status === 'Available').length} Available`);

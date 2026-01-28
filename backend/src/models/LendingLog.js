@@ -42,9 +42,10 @@ const LendingLog = sequelize.define('LendingLog', {
     comment: 'Reference to the borrowed item',
   },
   
-  userId: {
+  borrowerId: {
     type: DataTypes.UUID,
     allowNull: false,
+    field: 'borrowerId',
     references: {
       model: 'Users',
       key: 'id',
@@ -83,9 +84,38 @@ const LendingLog = sequelize.define('LendingLog', {
     comment: 'Denormalized from User.email at lend time for audit trail preservation (FR-016)',
   },
   
-  dateLent: {
+  lentById: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    field: 'lentById',
+    references: {
+      model: 'Users',
+      key: 'id',
+    },
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+    comment: 'Reference to the user who processed the lending',
+  },
+  
+  lentByName: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
+    validate: {
+      notEmpty: {
+        msg: 'Lender name is required',
+      },
+      len: {
+        args: [1, 100],
+        msg: 'Lender name must be 1-100 characters',
+      },
+    },
+    comment: 'Denormalized from User.name at lend time for audit trail',
+  },
+  
+  lentAt: {
     type: DataTypes.DATE,
     allowNull: false,
+    field: 'lentAt',
     defaultValue: DataTypes.NOW,
     validate: {
       isDate: {
@@ -98,15 +128,16 @@ const LendingLog = sequelize.define('LendingLog', {
     comment: 'When the item was lent out',
   },
   
-  dateReturned: {
+  returnedAt: {
     type: DataTypes.DATE,
     allowNull: true,
+    field: 'returnedAt',
     validate: {
       isDate: {
         msg: 'Date returned must be a valid date',
       },
       isAfterLendDate(value) {
-        if (value && this.dateLent && value < this.dateLent) {
+        if (value && this.lentAt && value < this.lentAt) {
           throw new Error('Date returned cannot be before date lent');
         }
       },
@@ -114,9 +145,35 @@ const LendingLog = sequelize.define('LendingLog', {
     comment: 'When the item was returned (NULL if still out)',
   },
   
-  conditionNotes: {
+  returnedById: {
+    type: DataTypes.UUID,
+    allowNull: true,
+    field: 'returnedById',
+    references: {
+      model: 'Users',
+      key: 'id',
+    },
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
+    comment: 'Reference to the user who processed the return',
+  },
+  
+  returnedByName: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+    validate: {
+      len: {
+        args: [0, 100],
+        msg: 'Returner name must not exceed 100 characters',
+      },
+    },
+    comment: 'Denormalized from User.name at return time for audit trail',
+  },
+  
+  notes: {
     type: DataTypes.TEXT,
     allowNull: true,
+    field: 'notes',
     validate: {
       len: {
         args: [0, 1000],
@@ -145,27 +202,22 @@ const LendingLog = sequelize.define('LendingLog', {
   
   indexes: [
     {
-      name: 'idx_lending_logs_item_id',
       fields: ['itemId'],
       comment: 'Fast history lookup by item',
     },
     {
-      name: 'idx_lending_logs_user_id',
       fields: ['userId'],
       comment: 'Fast lookup by borrower',
     },
     {
-      name: 'idx_lending_logs_date_lent',
       fields: ['dateLent'],
       comment: 'Chronological sorting',
     },
     {
-      name: 'idx_lending_logs_date_returned',
       fields: ['dateReturned'],
       comment: 'Filter active loans (NULL check)',
     },
     {
-      name: 'idx_lending_logs_item_date_returned',
       fields: ['itemId', 'dateReturned'],
       comment: 'Active loans per item',
     },
@@ -184,10 +236,10 @@ const LendingLog = sequelize.define('LendingLog', {
 /**
  * Instance method: Check if loan is active (not returned yet)
  * 
- * @returns {boolean} True if dateReturned is null
+ * @returns {boolean} True if returnedAt is null
  */
 LendingLog.prototype.isActive = function() {
-  return this.dateReturned === null;
+  return this.returnedAt === null;
 };
 
 /**
@@ -196,10 +248,10 @@ LendingLog.prototype.isActive = function() {
  * @returns {number} Duration in days (null if not returned yet)
  */
 LendingLog.prototype.getDurationDays = function() {
-  if (!this.dateReturned) {
+  if (!this.returnedAt) {
     return null;
   }
-  const diffMs = this.dateReturned - this.dateLent;
+  const diffMs = this.returnedAt - this.lentAt;
   return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 };
 
@@ -209,8 +261,8 @@ LendingLog.prototype.getDurationDays = function() {
  * @returns {number} Days since item was lent
  */
 LendingLog.prototype.getCurrentDurationDays = function() {
-  const endDate = this.dateReturned || new Date();
-  const diffMs = endDate - this.dateLent;
+  const endDate = this.returnedAt || new Date();
+  const diffMs = endDate - this.lentAt;
   return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 };
 
@@ -221,8 +273,8 @@ LendingLog.prototype.getCurrentDurationDays = function() {
  */
 LendingLog.prototype.getFormattedDates = function() {
   return {
-    lent: this.dateLent.toLocaleDateString(),
-    returned: this.dateReturned ? this.dateReturned.toLocaleDateString() : 'Not returned',
+    lent: this.lentAt.toLocaleDateString(),
+    returned: this.returnedAt ? this.returnedAt.toLocaleDateString() : 'Not returned',
   };
 };
 
@@ -237,7 +289,7 @@ LendingLog.findActiveByItem = function(itemId, options = {}) {
   return this.findOne({
     where: {
       itemId,
-      dateReturned: null,
+      returnedAt: null,
     },
     ...options,
   });
@@ -252,9 +304,9 @@ LendingLog.findActiveByItem = function(itemId, options = {}) {
 LendingLog.findAllActive = function(options = {}) {
   return this.findAll({
     where: {
-      dateReturned: null,
+      returnedAt: null,
     },
-    order: [['dateLent', 'DESC']],
+    order: [['lentAt', 'DESC']],
     ...options,
   });
 };
@@ -269,7 +321,7 @@ LendingLog.findAllActive = function(options = {}) {
 LendingLog.findHistoryByItem = function(itemId, options = {}) {
   return this.findAll({
     where: { itemId },
-    order: [['dateLent', 'DESC']],  // Most recent first (FR-021)
+    order: [['lentAt', 'DESC']],  // Most recent first (FR-021)
     ...options,
   });
 };
@@ -283,8 +335,8 @@ LendingLog.findHistoryByItem = function(itemId, options = {}) {
  */
 LendingLog.findHistoryByUser = function(userId, options = {}) {
   return this.findAll({
-    where: { userId },
-    order: [['dateLent', 'DESC']],  // Most recent first
+    where: { borrowerId: userId },
+    order: [['lentAt', 'DESC']],  // Most recent first
     ...options,
   });
 };
@@ -302,11 +354,11 @@ LendingLog.findByDateRange = function(startDate, endDate, options = {}) {
   
   return this.findAll({
     where: {
-      dateLent: {
+      lentAt: {
         [Op.between]: [startDate, endDate],
       },
     },
-    order: [['dateLent', 'DESC']],
+    order: [['lentAt', 'DESC']],
     ...options,
   });
 };

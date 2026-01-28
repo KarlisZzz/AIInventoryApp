@@ -52,19 +52,16 @@ const Item = sequelize.define('Item', {
     comment: 'Detailed description of the item',
   },
   
-  category: {
-    type: DataTypes.STRING(50),
-    allowNull: false,
-    validate: {
-      notEmpty: {
-        msg: 'Category is required',
-      },
-      len: {
-        args: [1, 50],
-        msg: 'Category must be between 1 and 50 characters',
-      },
+  categoryId: {
+    type: DataTypes.UUID,
+    allowNull: true,  // Allow null for backwards compatibility during migration
+    references: {
+      model: 'Categories',
+      key: 'id',
     },
-    comment: 'Item category (e.g., "Hardware", "Tools", "Kitchen")',
+    onDelete: 'RESTRICT',  // Cannot delete category if items reference it
+    onUpdate: 'CASCADE',
+    comment: 'Foreign key to Category table (replaces category string field)',
   },
   
   status: {
@@ -111,23 +108,19 @@ const Item = sequelize.define('Item', {
   
   indexes: [
     {
-      name: 'idx_items_status',
       fields: ['status'],
       comment: 'Fast filtering by status (dashboard queries)',
     },
     {
-      name: 'idx_items_category',
-      fields: ['category'],
+      fields: ['categoryId'],
       comment: 'Fast filtering by category',
     },
     {
-      name: 'idx_items_name',
       fields: ['name'],
       comment: 'Fast text search by name',
     },
     {
-      name: 'idx_items_status_category',
-      fields: ['status', 'category'],
+      fields: ['status', 'categoryId'],
       comment: 'Combined queries for dashboard',
     },
   ],
