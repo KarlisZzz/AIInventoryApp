@@ -14,20 +14,22 @@
 
 const request = require('supertest');
 const { sequelize } = require('../src/config/database');
-const { Item, LendingLog, User } = require('../src/models');
+const { Item, LendingLog, User, Category, AdminAuditLog } = require('../src/models');
 const app = require('../src/app');
 
 describe('Dashboard Analytics API', () => {
   beforeAll(async () => {
-    // Sync database (create tables if they don't exist)
-    await sequelize.sync({ force: true });
+    // Database already initialized by global setup
   });
 
   beforeEach(async () => {
     // Clean up database before each test
+    // Delete in order respecting foreign key constraints
     await LendingLog.destroy({ where: {}, force: true });
     await Item.destroy({ where: {}, force: true });
+    await AdminAuditLog.destroy({ where: {}, force: true });
     await User.destroy({ where: {}, force: true });
+    await Category.destroy({ where: {}, force: true });
   });
 
   afterAll(async () => {

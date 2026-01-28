@@ -104,3 +104,90 @@ Notes:
 
 - The dev server runs on `http://localhost:5173` by default.
 - Tailwind is configured in `tailwind.config.ts` and PostCSS via `postcss.config.js`.
+
+---
+
+## Admin Management Section
+
+The frontend provides a comprehensive admin interface for system administrators to manage categories, users, and view system analytics.
+
+### Admin Routes
+
+Access the admin section at `/admin` (requires administrator role):
+
+- `/admin` - Admin Dashboard (system statistics and recent actions)
+- `/admin/categories` - Category Management (create, edit, delete categories)
+- `/admin/users` - User Management (create, edit, deactivate user accounts)
+
+### Features
+
+#### Dashboard (`/admin`)
+- System statistics cards (total users, categories, administrators)
+- Recent admin actions timeline (last 10 actions)
+- Quick action links to category and user management
+
+#### Category Management (`/admin/categories`)
+- View all categories with item counts
+- Create new categories with real-time validation
+- Edit category names inline
+- Delete categories (with item count protection)
+- Empty state guidance for new systems
+
+#### User Management (`/admin/users`)
+- View all users with role and status badges
+- Filter users by role (all, administrator, standard user)
+- Create new user accounts (auto-generates temporary password)
+- Edit user details (name, email, role)
+- Deactivate user accounts (with safety checks)
+- Self-deletion prevention
+- Last admin protection
+
+### Components
+
+Reusable admin components located in `src/components/admin/`:
+
+- `AdminCard.tsx` - Glassmorphism card container with optional actions
+- `ConfirmDialog.tsx` - Confirmation dialog with focus management
+- `ErrorBoundary.tsx` - React error boundary for graceful error handling
+- `SkeletonLoader.tsx` - Loading skeleton components for better UX
+
+### Accessibility
+
+Admin pages include:
+- ARIA labels for all icon buttons and interactive elements
+- Keyboard navigation support for tables and modals
+- Focus management in dialogs (focuses cancel button for destructive actions)
+- Role attributes on table elements for screen readers
+- Escape key handling to close dialogs
+
+### Testing
+
+Run frontend component tests:
+
+```powershell
+cd frontend
+npm test
+
+# Run specific test file
+npm test CategoryManagement.test.tsx
+```
+
+Test files are located in `src/test/pages/`:
+- `CategoryManagement.test.tsx` - Category CRUD operations
+- `UserManagement.test.tsx` - User CRUD operations with safety checks
+
+### State Management
+
+Admin pages use:
+- React Query for data fetching and caching (dashboard)
+- Local state for form management
+- Optimistic updates for better UX
+- Auto-refresh for dashboard (every 30 seconds)
+
+### Implementation Details
+
+See [specs/004-admin-management/quickstart.md](../specs/004-admin-management/quickstart.md) for complete implementation guide including:
+- TypeScript type definitions
+- API client functions
+- Page component structure
+- Routing configuration

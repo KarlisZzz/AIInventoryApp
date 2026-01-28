@@ -12,7 +12,7 @@
     "reset": "node reset-database.js",
     "lint": "eslint src/**/*.js",
     "format": "prettier --write src/**/*.js",
-    "test": "jest --coverage",
+    "test": "cross-env NODE_ENV=test jest --coverage",
     "verify": "node scripts/verify-infra.js"
   },
   "keywords": [
@@ -35,10 +35,13 @@
   },
   "devDependencies": {
     "axios": "^1.13.2",
+    "chai": "^4.3.10",
+    "cross-env": "^10.1.0",
     "eslint": "^8.57.0",
     "jest": "^30.2.0",
     "nodemon": "^3.1.11",
     "prettier": "^3.8.0",
+    "sinon": "^17.0.1",
     "supertest": "^7.2.2"
   }
 }

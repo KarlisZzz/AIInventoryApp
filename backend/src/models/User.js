@@ -58,19 +58,16 @@ const User = sequelize.define('User', {
   },
   
   role: {
-    type: DataTypes.STRING(50),
+    type: DataTypes.ENUM('administrator', 'standard user'),
     allowNull: false,
-    defaultValue: 'Borrower',
+    defaultValue: 'standard user',
     validate: {
-      notEmpty: {
-        msg: 'Role is required',
-      },
-      len: {
-        args: [1, 50],
-        msg: 'Role must be between 1 and 50 characters',
+      isIn: {
+        args: [['administrator', 'standard user']],
+        msg: 'Role must be administrator or standard user',
       },
     },
-    comment: 'User role (e.g., "Staff", "Admin", "Borrower")',
+    comment: 'User role: administrator (full access) or standard user (basic access)',
   },
   
   createdAt: {
@@ -92,18 +89,15 @@ const User = sequelize.define('User', {
   
   indexes: [
     {
-      name: 'idx_users_email',
       unique: true,
       fields: ['email'],
       comment: 'Unique email constraint and fast lookup',
     },
     {
-      name: 'idx_users_name',
       fields: ['name'],
       comment: 'Fast search by name',
     },
     {
-      name: 'idx_users_role',
       fields: ['role'],
       comment: 'Filter by role',
     },
@@ -150,10 +144,10 @@ User.prototype.getDisplayName = function() {
 /**
  * Instance method: Check if user is admin
  * 
- * @returns {boolean} True if user role is "Admin"
+ * @returns {boolean} True if user role is "administrator"
  */
 User.prototype.isAdmin = function() {
-  return this.role.toLowerCase() === 'admin';
+  return this.role === 'administrator';
 };
 
 /**
@@ -215,6 +209,48 @@ User.search = async function(searchTerm, options = {}) {
     order: [['name', 'ASC']],
     ...options,
   });
+};
+
+/**
+ * Class method: Count administrators in the system
+ * 
+ * @param {Object} options - Query options
+ * @returns {Promise<number>} Number of administrators
+ */
+User.countAdministrators = async function(options = {}) {
+  return this.count({
+    where: { role: 'administrator' },
+    ...options,
+  });
+};
+
+/**
+ * Class method: Check if an admin user can be deleted
+ * Prevents deletion of the last administrator
+ * 
+ * @param {string} userId - User ID to check
+ * @param {Object} options - Query options (include transaction)
+ * @returns {Promise<{ canDelete: boolean, reason: string|null }>}
+ */
+User.canDeleteAdmin = async function(userId, options = {}) {
+  const user = await this.findByPk(userId, options);
+  
+  if (!user) {
+    return { canDelete: false, reason: 'User not found' };
+  }
+  
+  if (user.role !== 'administrator') {
+    return { canDelete: true, reason: null };
+  }
+  
+  // Count total administrators
+  const adminCount = await this.countAdministrators(options);
+  
+  if (adminCount <= 1) {
+    return { canDelete: false, reason: 'Cannot delete the last administrator' };
+  }
+  
+  return { canDelete: true, reason: null };
 };
 
 module.exports = User;

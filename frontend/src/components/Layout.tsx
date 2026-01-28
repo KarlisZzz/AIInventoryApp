@@ -52,6 +52,16 @@ const Layout = () => {
               >
                 Inventory
               </Link>
+              <Link
+                to="/admin"
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  location.pathname.startsWith('/admin')
+                    ? 'bg-blue-500 text-white'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                }`}
+              >
+                Admin
+              </Link>
             </div>
           </div>
         </nav>

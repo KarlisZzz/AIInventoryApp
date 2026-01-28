@@ -100,6 +100,10 @@ app.use('/api/v1/lending', lendingRoutes);
 const dashboardRoutes = require('./routes/dashboard');
 app.use('/api/v1/dashboard', dashboardRoutes);
 
+// Admin routes (Phase 2 - Admin Management)
+const adminRoutes = require('./routes/admin');
+app.use('/api/v1/admin', adminRoutes);
+
 // ============================================================================
 // Error Handling
 // ============================================================================

@@ -131,3 +131,79 @@ See [specs/002-item-ui-enhancements/quickstart.md](../specs/002-item-ui-enhancem
 - Multer middleware configuration
 - File storage service with cleanup logic
 - Controller and route implementations
+
+---
+
+## Admin Management Feature
+
+The backend provides comprehensive admin functionality for managing categories, users, and viewing system analytics.
+
+### Admin Endpoints
+
+All admin endpoints require authentication via `x-user-id` header and admin role verification.
+
+#### Dashboard
+- **GET** `/api/v1/admin/dashboard` - Get system statistics and recent admin actions
+  - Returns: user count, category count, admin count, recent audit logs
+
+#### Category Management
+- **GET** `/api/v1/admin/categories` - List all categories with item counts
+- **POST** `/api/v1/admin/categories` - Create new category
+- **GET** `/api/v1/admin/categories/:id` - Get category by ID
+- **PUT** `/api/v1/admin/categories/:id` - Update category name
+- **DELETE** `/api/v1/admin/categories/:id` - Delete category (if no items assigned)
+
+#### User Management
+- **GET** `/api/v1/admin/users` - List all users (optional `?role=` filter)
+- **POST** `/api/v1/admin/users` - Create new user account
+- **GET** `/api/v1/admin/users/:id` - Get user by ID
+- **PUT** `/api/v1/admin/users/:id` - Update user details (name, email, role)
+- **DELETE** `/api/v1/admin/users/:id` - Deactivate user account
+
+### Authentication & Authorization
+
+Admin routes use the `requireAdmin` middleware which:
+- Validates `x-user-id` header is present
+- Verifies user exists and has `administrator` role
+- Returns 401 Unauthorized if no user ID
+- Returns 403 Forbidden if user is not an admin
+
+### Audit Logging
+
+All admin actions are automatically logged to the `AdminAuditLogs` table including:
+- Action type (CREATE_CATEGORY, UPDATE_USER, etc.)
+- Entity type and ID
+- Admin user ID
+- Action details (old/new values)
+- Timestamp
+
+### Safety Checks
+
+The system enforces critical safety rules:
+- **Last admin protection**: Cannot deactivate the last active administrator
+- **Self-deletion prevention**: Admins cannot deactivate their own accounts
+- **Category deletion**: Cannot delete categories with assigned items
+- **Email uniqueness**: User emails must be unique across active accounts
+
+### Testing
+
+Run admin-specific test suites:
+
+```powershell
+# Authentication validation
+node tests/admin-auth-validation.js
+
+# Audit logging verification  
+node tests/admin-audit-logging.js
+
+# Performance tests (1000+ entries)
+node tests/admin-performance.js
+```
+
+### Implementation Details
+
+See [specs/004-admin-management/quickstart.md](../specs/004-admin-management/quickstart.md) for complete implementation guide including:
+- Database schema changes (Categories, AdminAuditLogs, User role standardization)
+- Service layer with transaction support
+- Controller implementations
+- Route configuration with middleware
